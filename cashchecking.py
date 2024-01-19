@@ -20,7 +20,7 @@ from threading import Thread
 app = Flask(__name__)
 
 
-def save_image(request,url):
+def save_image(request, url):
     try:
         # customerNumber = request.form['customerNumber']
         image_data_url = request.form['imageDataUrl']
@@ -42,7 +42,7 @@ def upload_image():
 
 @app.route('/upload_license_image', methods=['POST'])
 def upload_license_image():
-    return save_image(request, 'license_copy')
+    return save_image(request, 'license_copy') test
 
 @app.route('/upload_check_copy', methods=['POST'])
 def upload_check_copy():
