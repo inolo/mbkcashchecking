@@ -39,53 +39,14 @@ def save_image(request,url):
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
     return save_image(request,'customer_photo')
-    # try:
-    #     customerName = request.form['customerName']
-    #     image_data_url = request.form['imageDataUrl']
-    #     customerPhone = request.form['phoneNumber']
-    #     uuid = request.form['uuid']
-    #
-    #     with open(f'./static/images/customer_photo/{uuid}.png', 'wb') as file:
-    #         file.write(base64.b64decode(image_data_url.split(',')[1]))
-    #
-    #     return jsonify(success=True)
-    # except Exception as e:
-    #
-    #     print(e)
-    #     return jsonify(success=False, error=str(e))
 
 @app.route('/upload_license_image', methods=['POST'])
 def upload_license_image():
     return save_image(request, 'license_copy')
-    # try:
-    #     customerName = request.form['customerName']
-    #     image_data_url = request.form['imageDataUrl']
-    #     customerPhone = request.form['phoneNumber']
-    #     uuid = request.form['uuid']
-    #
-    #     with open(f'./static/images/license_copy/{uuid}.png', 'wb') as file:
-    #         file.write(base64.b64decode(image_data_url.split(',')[1]))
-    #
-    #     return jsonify(success=True)
-    # except Exception as e:
-    #
-    #     print(e)
-    #     return jsonify(success=False, error=str(e))
 
 @app.route('/upload_check_copy', methods=['POST'])
 def upload_check_copy():
     return save_image(request, 'check_images')
-    # try:
-    #     image_data_url = request.form['imageDataUrl']
-    #     uuid = request.form['uuid']
-    #
-    #     with open(f'./static/images/check_images/{uuid}.png', 'wb') as file:
-    #         file.write(base64.b64decode(image_data_url.split(',')[1]))
-    #
-    #     return jsonify(success=True)
-    # except Exception as e:
-    #     print(e)
-    #     return jsonify(success=False, error=str(e))
 
 
 @app.route('/webcam')
