@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webcam Access</title>
+</head>
+<body>
+    <h1>Webcam Access Example</h1>
+    <form id="imageForm" enctype="multipart/form-data">
+        <label for="customerId">Customer ID:</label>
+        <input type="text" id="customerId" name="customerId" required>
+        <br>
+        <video id="webcam" autoplay></video>
+        <button id="captureButton" type="button">Capture</button>
+        <canvas id="canvas" style="display: none;"></canvas>
+    </form>
+
+    <script>
+        let videoElement = document.getElementById('webcam');
+        let captureButton = document.getElementById('captureButton');
+        let canvas = document.getElementById('canvas');
+        let context = canvas.getContext('2d');
+        let imageForm = document.getElementById('imageForm');
+
+        // Access the user's webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                // Assign the webcam stream to the video element
+                videoElement.srcObject = stream;
+            })
+            .catch(function (error) {
+                console.error('Error accessing webcam:', error);
+            });
+
+        // Function to capture a frame from the webcam and send it to Flask
+        captureButton.addEventListener('click', function () {
+            // Draw the current frame from the webcam onto the canvas
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+            // Convert the captured frame to a data URL (base64)
+            let imageDataURL = canvas.toDataURL('image/png');
+
+            // Get the customer ID from the input field
+            let customerId = document.getElementById('customerId').value;
+
+            // Create a FormData object and append the customer ID and image data
+            let formData = new FormData();
+            formData.append('customerId', customerId);
+            formData.append('imageDataUrl', imageDataURL);
+
+            // Send the form data to Flask using an AJAX POST request
+            fetch('/upload_image', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Image uploaded successfully.');
+                } else {
+                    console.error('Image upload failed.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

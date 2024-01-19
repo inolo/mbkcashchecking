@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Order - Cash Checking App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
+        /* Custom styles for sidebar */
+        .sidebar {
+            height: calc(100vh - 56px);
+            width: 200px;
+            position: fixed;
+            z-index: 1;
+            top: 56px;
+            left: -200px; /* Initially hidden */
+            background-color: #f8f9fa;
+            overflow-x: hidden;
+            padding-top: 20px;
+            transition: 0.5s; /* Smooth transition */
+        }
+
+        .sidebar a {
+            padding: 6px 8px 6px 16px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #333;
+            display: block;
+        }
+
+        .sidebar a:hover {
+            color: #007bff;
+        }
+
+        /* Style for the content */
+        .main-content {
+            transition: margin-left .5s; /* Smooth transition */
+            padding: 20px;
+        }
+
+        /* When the sidebar is shown, add 200px margin */
+        .main-content.shift-right {
+            margin-left: 200px;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            z-index: 2; /* Ensure navbar is above sidebar */
+        }
+        body {
+            cursor: default;
+        }
+
+        a, button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <span style="color: white; cursor: pointer" class="navbar-brand" onclick="toggleSidebar()">
+            &#9776; <!-- Unicode for menu icon -->
+        </span>
+        <a class="navbar-brand" href="/">CashCheck</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/support">Support</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a href="/orders">Orders</a>
+        <a href="/customers">Customers</a>
+        <a href="/reports">Reports</a>
+    </div>
+
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <h1>Add New Customer</h1>
+        <form action="/submit_new_customer" method="post">
+            <!-- Form fields -->
+            <div class="form-group">
+                <label for="customerName">Customer Name:</label>
+                <input type="text" class="form-control" id="customerName" name="customerName" required>
+            </div>
+            <div class="form-group">
+                <label for="contactInfo">Contact Information:</label>
+                <input type="text" class="form-control" id="contactInfo" name="contactInfo" required>
+            </div>
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" class="form-control" id="address" name="address">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number:</label>
+                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber">
+            </div>
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary">Add Customer</button>
+            <br>
+            <video id="webcam" autoplay></video>
+            <button id="captureButton" type="button">Capture Customer Photo</button>
+            <button id="captureLicenseButton" type="button">Capture License Copy</button>
+            <canvas id="canvas" style="display: none;"></canvas>
+        </form>
+        <div id="data-container" data-custom-data="{{uuid}}"></div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.getElementById("sidebar");
+            var mainContent = document.getElementById("mainContent");
+            if (sidebar.style.left === "-200px") {
+                sidebar.style.left = "0";
+                mainContent.classList.add("shift-right");
+            } else {
+                sidebar.style.left = "-200px";
+                mainContent.classList.remove("shift-right");
+            }
+        }
+             let videoElement = document.getElementById('webcam');
+        let captureButton = document.getElementById('captureButton');
+        let canvas = document.getElementById('canvas');
+        let context = canvas.getContext('2d');
+        let imageForm = document.getElementById('imageForm');
+
+        // Access the user's webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                // Assign the webcam stream to the video element
+                videoElement.srcObject = stream;
+            })
+            .catch(function (error) {
+                console.error('Error accessing webcam:', error);
+            });
+        var customData = document.getElementById('data-container').getAttribute('data-custom-data');
+        // Function to capture a frame from the webcam and send it to Flask
+        captureButton.addEventListener('click', function () {
+            // Draw the current frame from the webcam onto the canvas
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+            // Convert the captured frame to a data URL (base64)
+            let imageDataURL = canvas.toDataURL('image/png');
+
+            // Get the customer ID from the input field
+
+            let customerName = document.getElementById('customerName').value;
+            let phoneNumber = document.getElementById('phoneNumber').value;
+
+            // Create a FormData object and append the customer ID and image data
+            let formData = new FormData();
+            formData.append('customerName', customerName);
+            formData.append('imageDataUrl', imageDataURL);
+            formData.append('uuid',customData);
+            formData.append('phoneNumber', phoneNumber);
+
+            // Send the form data to Flask using an AJAX POST request
+            fetch('/upload_image', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Image uploaded successfully.');
+                } else {
+                    console.error('Image upload failed.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+           });
+
+            captureLicenseButton.addEventListener('click', function () {
+            // Draw the current frame from the webcam onto the canvas
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+            // Convert the captured frame to a data URL (base64)
+            let imageDataURL = canvas.toDataURL('image/png');
+
+            // Get the customer ID from the input field
+
+            let customerName = document.getElementById('customerName').value;
+            let phoneNumber = document.getElementById('phoneNumber').value;
+
+            // Create a FormData object and append the customer ID and image data
+            let formData = new FormData();
+            formData.append('customerName', customerName);
+            formData.append('imageDataUrl', imageDataURL);
+            formData.append('uuid',customData);
+            formData.append('phoneNumber', phoneNumber);
+
+            // Send the form data to Flask using an AJAX POST request
+            fetch('/upload_license_image', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Image uploaded successfully.');
+                } else {
+                    console.error('Image upload failed.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
