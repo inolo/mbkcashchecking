@@ -42,7 +42,7 @@ def upload_image():
 
 @app.route('/upload_license_image', methods=['POST'])
 def upload_license_image():
-    return save_image(request, 'license_copy') test
+    return save_image(request, 'license_copy')
 
 @app.route('/upload_check_copy', methods=['POST'])
 def upload_check_copy():
