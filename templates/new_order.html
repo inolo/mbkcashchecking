@@ -58,6 +58,38 @@
         a, button {
             cursor: pointer;
         }
+        /* CSS styles for the video and image container */
+        .video-image-container {
+            display: flex; /* Use flexbox to arrange children side by side */
+            align-items: center; /* Vertically center the children */
+            position: relative; /* Add relative positioning to the container */
+        }
+
+        /* CSS styles for the video element */
+        #webcam {
+            max-width: 100%; /* Ensure the video doesn't exceed its container's width */
+        }
+
+        /* CSS styles for the captured image element */
+        #capturedImage {
+            max-width: 100%; /* Ensure the image doesn't exceed its container's width */
+            margin-right: 20px; /* Add some spacing between the video and image */
+        }
+
+        /* CSS styles for the "Capture" button */
+        #captureButton {
+            position: absolute; /* Position the button relative to the container */
+            top: 0; /* Adjust top position as needed */
+            right: 0; /* Adjust right position as needed */
+        }
+
+        /* CSS styles for the fixed "Capture" button */
+        .fixed-button {
+            position: fixed; /* Make the button fixed */
+            bottom: 20px; /* Adjust bottom position as needed */
+            right: 20px; /* Adjust right position as needed */
+            z-index: 1; /* Ensure the button is above other content */
+        }
     </style>
 </head>
 <body>
@@ -90,7 +122,7 @@
     <!-- Main Content -->
 <div class="main-content" id="mainContent">
         <h1>Create New Order</h1>
-        <form action="/submit_new_order" method="post">
+         <form action={{url_for('order_submit')}} method="post">
             <!-- Form fields -->
             <div class="form-group">
                 <label for="company">Company:</label>
@@ -116,18 +148,29 @@
                 <label for="dateIssued">Date Issued:</label>
                 <input type="date" class="form-control" id="dateIssued" name="dateIssued" required>
             </div>
-            <div class="form-group">
-                <label for="payee">Payee:</label>
-                <input type="text" class="form-control" id="payee" name="payee">
+                         <div class="form-group">
+                <label for="uuid"></label>
+                <input type="hidden" class="form-control" id="uuid" name="uuid"  value={{uuid}}>
+            </div>
+
+             <div class="form-group">
+                <label for="base64"></label>
+                <input type="hidden" class="form-control" id="base64" name="base64"  value="filler">
             </div>
             <!-- Submit button -->
             <button type="submit" class="btn btn-primary">Submit Order</button>
-                        <button type="submit" class="btn btn-primary">Add Customer</button>
+             <a href="/new_customer" class="btn btn-primary">Add Customer</a>
             <br>
-            <video id="webcam" autoplay></video>
-            <button id="captureButton" type="button">Capture Check Copy</button>
-            <canvas id="canvas" style="display: none;"></canvas>
-            <img id="capturedImage" src="" alt="Captured Image">
+<!--            <video id="webcam" autoplay></video>-->
+<!--            <button id="captureButton" type="button">Capture Check Copy</button>-->
+<!--            <canvas id="canvas" style="display: none;"></canvas>-->
+<!--            <img id="capturedImage" src="" alt="Captured Image">-->
+            <div class="video-image-container">
+                <video id="webcam" autoplay></video>
+                <img id="capturedImage" src="./static/images/white.png" alt="Captured Image">
+                <button id="captureButton" type="button">Capture Check Copy</button>
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
         </form>
         <div id="data-container" data-custom-data="{{uuid}}"></div>
     </div>
@@ -216,7 +259,9 @@
         function updateCapturedImage(imageDataURL) {
             let capturedImageElement = document.getElementById('capturedImage');
             capturedImageElement.src = imageDataURL;
-        }
+            let form_data = document.getElementById('base64');
+            form_data.value = imageDataURL;
+        };
 
 
     </script>

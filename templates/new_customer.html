@@ -58,6 +58,51 @@
         a, button {
             cursor: pointer;
         }
+                /* CSS styles for the video and image container */
+        .video-image-container {
+            display: flex; /* Use flexbox to arrange children side by side */
+            align-items: center; /* Vertically center the children */
+            position: relative; /* Add relative positioning to the container */
+        }
+
+        /* CSS styles for the video element */
+        #webcam {
+            max-width: 100%; /* Ensure the video doesn't exceed its container's width */
+        }
+
+        /* CSS styles for the captured image element */
+        #capturedImage {
+            max-width: 100%; /* Ensure the image doesn't exceed its container's width */
+            margin-right: 20px; /* Add some spacing between the video and image */
+        }
+
+        /* CSS styles for the "Capture" button */
+        #captureButton {
+            position: absolute; /* Position the button relative to the container */
+            top: 0; /* Adjust top position as needed */
+            right: 0; /* Adjust right position as needed */
+        }
+
+        /* CSS styles for the fixed "Capture" button */
+        .fixed-button {
+            position: fixed; /* Make the button fixed */
+            bottom: 20px; /* Adjust bottom position as needed */
+            right: 20px; /* Adjust right position as needed */
+            z-index: 1; /* Ensure the button is above other content */
+        }
+                #captureLicenseButton {
+            position: absolute; /* Position the button relative to the container */
+            top: 4; /* Adjust top position as needed */
+            right: 0; /* Adjust right position as needed */
+        }
+
+        /* CSS styles for the fixed "Capture" button */
+        .fixed-button {
+            position: fixed; /* Make the button fixed */
+            bottom: 20px; /* Adjust bottom position as needed */
+            right: 40px; /* Adjust right position as needed */
+            z-index: 1; /* Ensure the button is above other content */
+        }
     </style>
 </head>
 <body>
@@ -115,10 +160,17 @@
             <!-- Submit button -->
             <button type="submit" class="btn btn-primary">Add Customer</button>
             <br>
-            <video id="webcam" autoplay></video>
-            <button id="captureButton" type="button">Capture Customer Photo</button>
-            <button id="captureLicenseButton" type="button">Capture License Copy</button>
-            <canvas id="canvas" style="display: none;"></canvas>
+<!--            <video id="webcam" autoplay></video>-->
+<!--            <button id="captureButton" type="button">Capture Customer Photo</button>-->
+<!--            <button id="captureLicenseButton" type="button">Capture License Copy</button>-->
+<!--            <canvas id="canvas" style="display: none;"></canvas>-->
+            <div class="video-image-container">
+                <video id="webcam" autoplay></video>
+                <img id="capturedImage" src="./static/images/white.png" alt="Captured Image">
+                <button id="captureButton" type="button">Capture Customer Photo</button>
+                <button id="captureLicenseButton" type="button">Capture License Copy</button>
+                <canvas id="canvas" style="display: none;"></canvas>
+            </div>
         </form>
         <div id="data-container" data-custom-data="{{uuid}}"></div>
     </div>
@@ -172,7 +224,7 @@
             formData.append('imageDataUrl', imageDataURL);
             formData.append('uuid',customData);
             formData.append('phoneNumber', phoneNumber);
-
+            updateCapturedImage(imageDataURL);
             // Send the form data to Flask using an AJAX POST request
             fetch('/upload_image', {
                 method: 'POST',
@@ -211,6 +263,7 @@
             formData.append('uuid',customData);
             formData.append('phoneNumber', phoneNumber);
 
+            updateCapturedImage(imageDataURL);
             // Send the form data to Flask using an AJAX POST request
             fetch('/upload_license_image', {
                 method: 'POST',
@@ -227,6 +280,10 @@
                 console.error('Error:', error);
             });
         });
+        function updateCapturedImage(imageDataURL) {
+            let capturedImageElement = document.getElementById('capturedImage');
+            capturedImageElement.src = imageDataURL;
+        }
     </script>
 </body>
 </html>

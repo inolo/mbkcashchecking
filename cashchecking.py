@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, Response, render_template
+from flask import Flask, request, jsonify, Response, render_template, url_for, flash, redirect
 import base64
 import json
 import hmac
@@ -15,10 +15,17 @@ import sys
 import requests
 import numpy as np
 from threading import Thread
+from dml_sql import add_order
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '5UUh-uNiJMZ<{qWx00z:f!/to|aT0('
 
+
+def get_sqlite_connection():
+    conn = sqlite3.connect('cashchecking.db')
+    cur = conn.cursor()
+    return conn, cur
 
 def save_image(request, url):
     try:
@@ -70,16 +77,32 @@ def customers():
 def reports():
     return 'This is the reports page'
 
-
-@app.route('/new_order', methods=['GET'])
+@app.route('/new_order', methods=['GET', 'POST'])
 def new_order():
     uuid = uuid4().hex
     return render_template('new_order.html',uuid=uuid)
 
-@app.route('/new_customer', methods=['GET'])
+@app.route('/new_customer', methods=['GET','POST'])
 def new_customer():
     uuid = uuid4().hex
     return render_template('new_customer.html',uuid=uuid)
+
+
+
+############# FORMS ############################################################
+@app.route('/order_submit', methods=['POST'])
+def order_submit():
+    conn, cursor = get_sqlite_connection()
+    data = request.form
+    employee_id = 1
+    # data['customer_uuid'] = 11
+    add_order(cursor, data, employee_id)
+    conn.commit()
+    conn.close()
+    return 'order submitted ty'
+
+
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80, debug=True)
