@@ -2,10 +2,10 @@ import sqlite3
 
 
 def add_order(cursor, data, employee_id):
-    company = data['company']
+    # company = data['company']
     date_issued = data['dateIssued']
     amount = data['amount']
-    account_number = data['accountNumber']
+    # account_number = data['accountNumber']
     check_number = data['checkNumber']
     customer_number = data['customerSearchField']
     uuid = data['uuid']
@@ -16,11 +16,8 @@ def add_order(cursor, data, employee_id):
     (
       order_uuid,
       customer_id,
-      customer_uuid,
-      date_check_issued,
-      company,
       check_number,
-      check_account_number,
+      date_check_issued,
       amount, 
       check_photo,
       employee_id
@@ -29,11 +26,8 @@ def add_order(cursor, data, employee_id):
     (
      '{uuid}',
      '{customer_number}',
-     1111,
+     '{check_number}',
      '{date_issued}',
-     '{company}',
-     {check_number},
-     '{account_number}',
      {amount},
      '{base64}',
      {employee_id}

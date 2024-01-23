@@ -125,10 +125,10 @@
         <h1>Create New Order</h1>
          <form action={{url_for('order_submit')}} method="post">
             <!-- Form fields -->
-            <div class="form-group">
-                <label for="company">Company:</label>
-                <input type="text" class="form-control" id="company" name="company" required>
-            </div>
+<!--            <div class="form-group">-->
+<!--                <label for="company">Company:</label>-->
+<!--                <input type="text" class="form-control" id="company" name="company" required>-->
+<!--            </div>-->
 <!--            <div class="form-group">-->
 <!--                <label for="customerNumber">Customer Number:</label>-->
 <!--                <input type="text" class="form-control" id="customerNumber" name="customerNumber" required>-->
@@ -143,12 +143,12 @@
 <!--            </div>-->
             <div class="form-group">
                 <label for="checkNumber">Check Number:</label>
-                <input type="text" class="form-control" id="checkNumber" name="checkNumber" required>
+                <input type="text" class="form-control" id="checkNumber" name="checkNumber" value="None">
             </div>
-            <div class="form-group">
-                <label for="accountNumber">Account Number:</label>
-                <input type="text" class="form-control" id="accountNumber" name="accountNumber" required>
-            </div>
+<!--            <div class="form-group">-->
+<!--                <label for="accountNumber">Account Number:</label>-->
+<!--                <input type="text" class="form-control" id="accountNumber" name="accountNumber" required>-->
+<!--            </div>-->
             <div class="form-group">
                 <label for="amount">Amount:</label>
                 <input type="number" class="form-control" id="amount" name="amount" required>
@@ -283,7 +283,7 @@
             // Get the customer ID from the input field
 
 
-            let checkNumber = document.getElementById('checkNumber').value;
+<!--            let checkNumber = document.getElementById('checkNumber').value;-->
 
             // Create a FormData object and append the customer ID and image data
             let formData = new FormData();

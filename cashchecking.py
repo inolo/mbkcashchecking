@@ -15,6 +15,7 @@ import sys
 import requests
 import numpy as np
 from threading import Thread
+import ast
 from dml_sql import add_order, add_customer
 from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, get_order_list_by_customer
 
@@ -140,7 +141,9 @@ def customer_detail(customer_id):
         'license_number': result[5],
         'account_creation': result[6],
         'last_checked': result[7],
-        'uuid': result[8]
+        'uuid': result[8],
+        'is_flagged' : result[9],
+        'notes': result[10]
     }
     customer_orders = []
     for order in orders_list:
@@ -195,7 +198,7 @@ def get_customers():
     conn.close()
     customer_list = []
     for customer in results:
-        customer_string = f'{customer[0]}-{customer[1]}-{customer[2]}-{customer[3]}'
+        customer_string = f'{customer[0]}-{customer[1].upper()}-{customer[2].upper()}{"-FLAGGED" if customer[-1] == 1 else ""}'
         customer_list.append(customer_string)
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', 20, type=int)
@@ -206,6 +209,49 @@ def get_customers():
     paginated_customers = filtered_customers[(page-1)*limit:page*limit]
 
     return jsonify(paginated_customers)
+
+
+@app.route('/save_notes', methods=['POST'])
+def save_notes():
+    data = request.data.decode("utf-8")
+    data = ast.literal_eval(data)
+    print(data)
+    notes = data['notes']
+    customer_id = data['customerId'].split(':')[-1].replace('}','').replace('"','').replace(' ','')
+    print(notes)
+    print(customer_id)
+    conn, cursor = get_sqlite_connection()
+    sql = f''' update customers set notes = '{notes}' where customer_id = {customer_id}'''
+    cursor.execute(sql)
+    conn.commit()
+    conn.close()
+    return jsonify(success=True)
+
+@app.route('/flag_account', methods=['POST'])
+def flag_account():
+    print('hello')
+    data = request.data.decode("utf-8")
+    print(data)
+    id = data.split(':')[-1].replace('}','').replace('"','').replace(' ','')
+    conn, cursor = get_sqlite_connection()
+    sql = f''' update customers set is_flagged = 1 where customer_id = {id}'''
+    cursor.execute(sql)
+    conn.commit()
+    conn.close()
+    return jsonify(success=True)
+
+
+@app.route('/unflag_account', methods=['POST'])
+def unflag_account():
+    data = request.data.decode("utf-8")
+    id = data.split(':')[-1].replace('}','').replace('"','').replace(' ','')
+    conn, cursor = get_sqlite_connection()
+    sql = f''' update customers set is_flagged = 0 where customer_id = {id}'''
+    cursor.execute(sql)
+    conn.commit()
+    conn.close()
+    return jsonify(success=True)
+
 
 ############# FORMS ############################################################
 @app.route('/order_submit', methods=['POST'])

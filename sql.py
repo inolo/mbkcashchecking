@@ -18,7 +18,9 @@ CREATE TABLE CUSTOMERS
   creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   last_checked_date TIMESTAMP,
   customer_photo TEXT,
-  customer_license_photo TEXT
+  customer_license_photo TEXT,
+  is_flagged BOOLEAN DEFAULT 0,
+  notes TEXT DEFAULT 'NO NOTES'
   )
 '''
 
@@ -42,8 +44,21 @@ create_order_table = '''
 
 '''
 
+create_employees_table = '''
+ CREATE TABLE EMPLOYEES
+ (employee_id INTEGER,
+ first_name TEXT,
+ last_name TEXT,
+ creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ last_login TIMESTAMP,
+ password TEXT,
+ username TEXT
+ )
+'''
+
 cur.execute(create_order_table)
 cur.execute(create_customers_table)
+cur.execute(create_employees_table)
 conn.commit()
 
 

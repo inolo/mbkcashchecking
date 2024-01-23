@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<!--    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>-->
+<!--     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>-->
     <style>
         /* Custom styles for sidebar */
         .sidebar {
@@ -184,7 +185,7 @@
             <!-- ... [customer details] ... -->
                                     <h2>Customer Details</h2>
         <div class="customer-details">
-            <p><strong>ID:</strong> {{ customer.id }}</p>
+            <p id="cust_id"><strong>ID:</strong> {{ customer.id }}</p>
             <p><strong>First Name:</strong> {{ customer.first_name }}</p>
             <p><strong>Last Name:</strong> {{ customer.last_name }}</p>
             <p><strong>Phone Number:</strong> {{ customer.phone_number }}</p>
@@ -192,8 +193,20 @@
             <p><strong>License Number:</strong> {{ customer.license_number }}</p>
             <p><strong>Account Creation Date:</strong> {{ customer.account_creation }}</p>
             <p><strong>Last Cashed Check Date:</strong> {{ customer.last_checked }}</p>
+            {% if customer.is_flagged%}
+                <p><strong>Is Flagged: </strong>YES</p>
+            {% else %}
+                <p><strong>Is Flagged: </strong>NO</p>
+            {% endif %}
             <!-- Add more details as needed -->
+            <div class="customer-notes">
+            <h3>Notes</h3>
+            <textarea id="customerNotes" rows="4" style="width: 100%;">{{ customer.notes }}</textarea>
+            <button id="saveNotes" type="button" class="btn btn-primary">Save Notes</button>
         </div>
+        </div>
+            <button id="flagaccount" type="button">Flag Account</button>
+            <button id="unflagaccount" type="button">Unflag Account</button>
         </div>
     </div>
 
@@ -281,6 +294,70 @@
                 mainContent.classList.remove("shift-right");
             }
         }
+        let saveNotes = document.getElementById('saveNotes');
+
+        saveNotes.addEventListener('click', function () {
+            var notes = document.getElementById('customerNotes').value;
+            var customerId = document.getElementById('cust_id').innerText;
+        fetch('/save_notes', {
+                method: 'POST',
+                 body: JSON.stringify({ customerId: customerId, notes: notes }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Image uploaded successfully.');
+                    window.location.reload();
+                } else {
+                    console.error('Image upload failed.');
+                }
+
+
+        });
+     });
+        let flagaccount = document.getElementById('flagaccount');
+
+        flagaccount.addEventListener('click', function () {
+        console.log('I am here');
+         var pValue = document.getElementById('cust_id').innerText;
+         console.log(pValue);
+        fetch('/flag_account', {
+                method: 'POST',
+                body: JSON.stringify({ pTagValue: pValue }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Image uploaded successfully.');
+                    window.location.reload();
+                } else {
+                    console.error('Image upload failed.');
+                }
+
+
+        });
+     });
+
+      let unflagaccount = document.getElementById('unflagaccount');
+
+        unflagaccount.addEventListener('click', function () {
+         var pValue = document.getElementById('cust_id').innerText;
+         console.log(pValue);
+        fetch('/unflag_account', {
+                method: 'POST',
+                body: JSON.stringify({ pTagValue: pValue }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Image uploaded successfully.');
+                    window.location.reload();
+                } else {
+                    console.error('Image upload failed.');
+                }
+
+
+        });
+     });
+
+
     </script>
 </body>
 </html>
