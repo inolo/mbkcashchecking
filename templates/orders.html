@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Checking App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
+        /* Custom styles for sidebar */
+        .sidebar {
+            height: calc(100vh - 56px);
+            width: 200px;
+            position: fixed;
+            z-index: 1;
+            top: 56px;
+            left: -200px; /* Initially hidden */
+            background-color: #f8f9fa;
+            overflow-x: hidden;
+            padding-top: 20px;
+            transition: 0.5s; /* Smooth transition */
+        }
+
+        .sidebar a {
+            padding: 6px 8px 6px 16px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #333;
+            display: block;
+        }
+
+        .sidebar a:hover {
+            color: #007bff;
+        }
+
+        /* Style for the content */
+        .main-content {
+            transition: margin-left .5s; /* Smooth transition */
+            padding: 20px;
+        }
+
+        /* When the sidebar is shown, add 200px margin */
+        .main-content.shift-right {
+            margin-left: 200px;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            z-index: 2; /* Ensure navbar is above sidebar */
+        }
+        body {
+            cursor: default;
+        }
+
+        a, button {
+            cursor: pointer;
+        }
+                .custom-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .custom-table th, .custom-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .custom-table tr:nth-child(even){background-color: #f2f2f2;}
+
+        .custom-table tr:hover {background-color: #ddd;}
+
+        .custom-table th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #007bff;
+            color: white;
+        }
+
+        .clickable {
+            color: #007bff;
+            cursor: pointer;
+        }
+
+        .clickable:hover {
+            text-decoration: underline;
+        }
+                .search-bar {
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <span style="color: white; cursor: pointer" class="navbar-brand" onclick="toggleSidebar()">
+            &#9776; <!-- Unicode for menu icon -->
+        </span>
+        <a class="navbar-brand" href="/">CashCheck</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/support">Support</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a href="/orders">Orders</a>
+        <a href="/customers">Customers</a>
+        <a href="/reports">Reports</a>
+    </div>
+
+    <!-- Main Content -->
+ <div class="main-content" id="mainContent">
+        <div class="search-bar">
+            <form action="/orders" method="get">
+                <div class="form-row align-items-end">
+                    <div class="col">
+                        <label for="searchText">Search Text:</label>
+                        <input type="text" class="form-control" id="searchText" name="search_text" placeholder="Enter search text">
+                    </div>
+                    <div class="col">
+                        <label for="dateFrom">Date From:</label>
+                        <input type="date" class="form-control" id="dateFrom" name="date_from" placeholder="Date From">
+                    </div>
+                    <div class="col">
+                        <label for="dateTo">Date To:</label>
+                        <input type="date" class="form-control" id="dateTo" name="date_to" placeholder="Date To">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Order Number</th>
+                    <th>Customer ID</th>
+                    <th>Order Creation Date</th>
+                    <th>Date Check Issued</th>
+                    <th>Check Number</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in orders_list %}
+                    <tr>
+                        <td><a href="/order/{{ result.order_number }}" class="clickable">{{ result.order_number }}</a></td>
+                        <td><a href="/customer/{{ result.customer_id }}" class="clickable">{{ result.customer_id }}</a></td>
+                        <td>{{ result.order_create_date }}</td>
+                        <td>{{ result.date_check_issued }}</td>
+                        <td>{{ result.check_number }}</td>
+                        <td>{{ result.amount }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+             <div class="pagination">
+        {% if has_prev %}
+            <a href="{{ url_for('orders', search_text=search_text, date_from=date_from, date_to=date_to, page=1) }}" class="btn btn-primary">Previous</a>
+        {% else %}
+            <span class="btn btn-primary disabled">Previous</span>
+        {% endif %}
+
+        {% if has_next %}
+            <a href="{{ url_for('orders', search_text=search_text, date_from=date_from, date_to=date_to, page=current_page+1) }}" class="btn btn-primary">Next</a>
+        {% else %}
+            <span class="btn btn-primary disabled">Next</span>
+        {% endif %}
+    </div>
+    </div>
+
+
+
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.getElementById("sidebar");
+            var mainContent = document.getElementById("mainContent");
+            if (sidebar.style.left === "-200px") {
+                sidebar.style.left = "0";
+                mainContent.classList.add("shift-right");
+            } else {
+                sidebar.style.left = "-200px";
+                mainContent.classList.remove("shift-right");
+            }
+        }
+    </script>
+</body>
+</html>

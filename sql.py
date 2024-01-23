@@ -15,7 +15,7 @@ CREATE TABLE CUSTOMERS
   phone_number TEXT,
   address TEXT,
   license_number TEXT,
-  creation_date TIMESTAMP,
+  creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   last_checked_date TIMESTAMP,
   customer_photo TEXT,
   customer_license_photo TEXT
@@ -45,3 +45,5 @@ create_order_table = '''
 cur.execute(create_order_table)
 cur.execute(create_customers_table)
 conn.commit()
+
+

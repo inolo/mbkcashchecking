@@ -9,6 +9,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         /* Custom styles for sidebar */
         .sidebar {
@@ -128,10 +129,18 @@
                 <label for="company">Company:</label>
                 <input type="text" class="form-control" id="company" name="company" required>
             </div>
-            <div class="form-group">
-                <label for="customerNumber">Customer Number:</label>
-                <input type="text" class="form-control" id="customerNumber" name="customerNumber" required>
+<!--            <div class="form-group">-->
+<!--                <label for="customerNumber">Customer Number:</label>-->
+<!--                <input type="text" class="form-control" id="customerNumber" name="customerNumber" required>-->
+<!--            </div>-->
+             <div class="form-group">
+                <label for="customerSearchField">Customer:</label>
+                <input type="text" class="form-control" id="customerSearchField" name="customerSearchField" readonly onclick="openModal()" value="">
             </div>
+<!--             <div class="form-group">-->
+<!--                <label for="checkNumber1">Check Number:</label>-->
+<!--                <input type="text" class="form-control" id="checkNumber1" name="checkNumber1">-->
+<!--            </div>-->
             <div class="form-group">
                 <label for="checkNumber">Check Number:</label>
                 <input type="text" class="form-control" id="checkNumber" name="checkNumber" required>
@@ -157,6 +166,7 @@
                 <label for="base64"></label>
                 <input type="hidden" class="form-control" id="base64" name="base64"  value="filler">
             </div>
+
             <!-- Submit button -->
             <button type="submit" class="btn btn-primary">Submit Order</button>
              <a href="/new_customer" class="btn btn-primary">Add Customer</a>
@@ -174,6 +184,49 @@
         </form>
         <div id="data-container" data-custom-data="{{uuid}}"></div>
     </div>
+<!--    <div class="modal" id="customerSearchModal">-->
+<!--        <div class="modal-dialog">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <h5 class="modal-title">Search Customer</h5>-->
+<!--                    <button type="button" class="close" onclick="closeModal()">&times;</button>-->
+<!--                </div>-->
+<!--                <div class="modal-body">-->
+<!--                    <input type="text" class="form-control" id="modalSearchBar" onkeyup="searchCustomers()" placeholder="Search customers...">-->
+<!--                    <ul id="customerList">-->
+<!--                        &lt;!&ndash; Customer list items will be added here &ndash;&gt;-->
+<!--                    </ul>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--  -->
+  <!-- second modal -->
+  <!-- Modal Structure -->
+<div class="modal" id="customerSearchModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Search Customer</h5>
+                <button type="button" class="close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control" id="modalSearchBar" onkeyup="searchCustomers()" placeholder="Search customers...">
+                <ul id="customerList">
+                    <!-- Customer list items will be added here -->
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <nav aria-label="Customer search results pages">
+                    <ul class="pagination">
+                        <li class="page-item" id="previousPage"><a class="page-link" href="#" onclick="changePage(-1)">Previous</a></li>
+                        <li class="page-item" id="nextPage"><a class="page-link" href="#" onclick="changePage(1)">Next</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
 
     <script>
         function toggleSidebar() {
@@ -229,14 +282,12 @@
 
             // Get the customer ID from the input field
 
-            let customerNumber = document.getElementById('customerNumber').value;
+
             let checkNumber = document.getElementById('checkNumber').value;
 
             // Create a FormData object and append the customer ID and image data
             let formData = new FormData();
             formData.append('uuid',customData);
-            formData.append('customerNumber', customerNumber);
-            formData.append('checkNumber', checkNumber);
             formData.append('imageDataUrl', imageDataURL);
 
             updateCapturedImage(imageDataURL);
@@ -256,12 +307,86 @@
                 console.error('Error:', error);
             });
            });
+
         function updateCapturedImage(imageDataURL) {
             let capturedImageElement = document.getElementById('capturedImage');
             capturedImageElement.src = imageDataURL;
             let form_data = document.getElementById('base64');
             form_data.value = imageDataURL;
         };
+
+
+
+// Global variables to track current page and search query
+var currentPage = 1;
+var currentQuery = '';
+
+// Function to open the modal
+function openModal() {
+    document.getElementById('customerSearchModal').style.display = 'block';
+    fetchCustomers(currentPage, currentQuery);  // Fetch initial data
+}
+
+// Function to close the modal
+function closeModal() {
+    document.getElementById('customerSearchModal').style.display = 'none';
+}
+
+// Function to fetch customers from the server
+function fetchCustomers(page, query) {
+    $.ajax({
+        url: '/get_customers',
+        type: 'GET',
+        data: { page: page, limit: 20, query: query },
+        success: function(customers) {
+            renderCustomerPage(customers);
+            // Update global variables
+            currentPage = page;
+            currentQuery = query;
+        },
+        error: function(error) {
+            console.log('Error fetching customers:', error);
+        }
+    });
+}
+
+// Function to render customer list in the modal
+function renderCustomerPage(customers) {
+    var customerList = document.getElementById("customerList");
+    customerList.innerHTML = ""; // Clear existing list
+
+    customers.forEach(function(customer) {
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.textContent = customer;
+        a.href = "javascript:void(0);"; // Prevent the link from redirecting
+        a.onclick = function() { selectCustomer(customer); };
+        li.appendChild(a);
+        customerList.appendChild(li);
+    });
+}
+
+// Function to handle the search
+function searchCustomers() {
+    var query = document.getElementById('modalSearchBar').value;
+    fetchCustomers(1, query); // Always start from page 1 for new searches
+}
+
+// Function to change the page
+function changePage(increment) {
+    var newPage = currentPage + increment;
+    fetchCustomers(newPage, currentQuery);
+}
+
+// Function to handle customer selection
+function selectCustomer(customerName) {
+    const myArray = customerName.split("-");
+    let customer_number = myArray[0];
+    document.getElementById('customerSearchField').value = customer_number;
+    console.log(document.getElementById('customerSearchField').value)
+    closeModal();
+}
+
 
 
     </script>

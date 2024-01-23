@@ -1,0 +1,145 @@
+import sqlite3
+
+
+def get_db_customers(cursor):
+    sql = '''
+    select customer_id,first_name, last_name, phone_number from customers
+    '''
+    cursor.execute(sql)
+    results = cursor.fetchall()
+
+    return results
+
+
+def get_order_list(cursor, date_from=None, date_to=None, text=None):
+    if text:
+        sql = f'''
+        select order_id,customer_id, order_create_date, date_check_issued, check_number, amount from orders
+        where order_id = {text} or customer_id = {text}
+        '''
+    elif date_from and date_to:
+        sql = f'''
+        select order_id,customer_id, order_create_date, date_check_issued, check_number, amount from orders
+        where order_create_date <= '{date_from}'
+        and order_create_date >= '{date_to}'
+        '''
+    elif date_from:
+        sql = f'''
+        select order_id,customer_id, order_create_date, date_check_issued, check_number, amount from orders
+        where order_create_date <= '{date_from}'
+        '''
+    elif date_to:
+        sql = f'''
+        select order_id,customer_id, order_create_date, date_check_issued, check_number, amount from orders
+        where order_create_date >= '{date_to}' '''
+    else:
+        sql = '''
+        select
+        order_id, customer_id, order_create_date, date_check_issued, check_number, amount
+        from orders '''
+
+    cursor.execute(sql)
+    results = cursor.fetchall()
+
+    return results
+
+
+def get_customer_list(cursor, date_from=None, date_to=None, text=None):
+    if text:
+        sql = f'''
+        select customer_id,first_name, last_name, phone_number, address, license_number, creation_date,
+        last_checked_date from customers
+        where first_name like '%{text}%' or last_name like '%{text}%' or license_number like '%{text}%'
+        or phone_number like '%{text}%' or customer_id = '{text}' 
+        '''
+    elif date_from and date_to:
+        sql = f'''
+        select customer_id,first_name, last_name, phone_number, address, license_number, creation_date,
+        last_checked_date from customers
+        where creation_date <= '{date_from}'
+        and creation_date >= '{date_to}' or last_checked_date <= '{date_from}'
+        and last_checked_date >= '{date_to} 
+        '''
+    elif date_from:
+        sql = f'''
+        select customer_id,first_name, last_name, phone_number, address, license_number, creation_date,
+        last_checked_date from customers
+        where creation_date <= '{date_from}' or last_checked_date <= '{date_from}'
+        '''
+    elif date_to:
+        sql = f'''
+        select customer_id,first_name, last_name, phone_number, address, license_number, creation_date,
+        last_checked_date from customers
+        where creation_date >= '{date_to}' or last_checked_date >= '{date_to}' '''
+    else:
+        sql = '''
+       select customer_id,first_name, last_name, phone_number, address, license_number, creation_date,
+       last_checked_date from customers '''
+
+    cursor.execute(sql)
+    results = cursor.fetchall()
+
+    return results
+
+def get_order_detail(cursor, order_id):
+    sql = f'''
+    
+    select         
+        order_id,
+        customer_id,
+        order_create_date,
+        date_check_issued,
+        check_number,
+        amount,
+        order_uuid
+    from 
+    orders
+    where order_id = {order_id}
+    '''
+
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    return results
+
+def get_customer_detail(cursor, customer_id):
+    sql = f'''
+
+    select         
+        customer_id,
+        first_name,
+        last_name,
+        phone_number,
+        address,
+        license_number,
+        creation_date,
+        last_checked_date,
+        customer_uuid
+    from 
+    customers
+    where customer_id = {customer_id}
+    '''
+
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    return results
+
+
+def get_order_list_by_customer(cursor, customer_id):
+    sql = f'''
+
+    select         
+        order_id,
+        customer_id,
+        order_create_date,
+        date_check_issued,
+        check_number,
+        amount,
+        order_uuid
+    from 
+    orders
+    where customer_id = {customer_id}
+    '''
+
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    return results

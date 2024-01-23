@@ -7,10 +7,9 @@ def add_order(cursor, data, employee_id):
     amount = data['amount']
     account_number = data['accountNumber']
     check_number = data['checkNumber']
-    customer_number = data['customerNumber']
+    customer_number = data['customerSearchField']
     uuid = data['uuid']
     base64 = data['base64']
-    # cust_uuid = data['customer_uuid']
 
     sql = f'''
     INSERT INTO ORDERS 
@@ -38,6 +37,44 @@ def add_order(cursor, data, employee_id):
      {amount},
      '{base64}',
      {employee_id}
+    )
+    '''
+
+    cursor.execute(sql)
+
+
+def add_customer(cursor, data):
+    first_name = data['first_name']
+    last_name = data['last_name']
+    customer_uuid = data['uuid']
+    address = data['address']
+    license_number = data['license_number']
+    phone_number = data['phoneNumber']
+    customer_photo = data['customer_base64']
+    customer_license_photo = data['license_base64']
+
+    sql = f'''
+    INSERT INTO CUSTOMERS 
+    (
+      first_name,
+      last_name,
+      customer_uuid,
+      phone_number,
+      address,
+      license_number, 
+      customer_photo,
+      customer_license_photo
+    )
+    values 
+    (
+     '{first_name}',
+     '{last_name}',
+     '{customer_uuid}',
+     '{phone_number}',
+     '{address}',
+     '{license_number}',
+     '{customer_photo}',
+     '{customer_license_photo}'
     )
     '''
 

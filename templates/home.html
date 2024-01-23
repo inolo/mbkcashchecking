@@ -88,6 +88,12 @@
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
+         {% if submit_order %}
+            <h2>Order Submitted Successfully!</h2>
+        {% endif %}
+        {% if submit_customer %}
+            <h2>Customer Added Successfully!</h2>
+        {% endif %}
         <h1>Welcome to the Cash Checking App</h1>
         <a href="/new_order" class="btn btn-primary">New Order</a>
         <a href="/new_customer" class="btn btn-primary">New Customer</a>
