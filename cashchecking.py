@@ -1,5 +1,5 @@
-from flask import Flask, request, jsonify, Response, render_template, url_for, flash, redirect
-import base64
+from flask import Flask, request, jsonify, Response, render_template, url_for, flash, redirect, session
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 import json
 import hmac
 import hashlib
@@ -16,12 +16,29 @@ import requests
 import numpy as np
 from threading import Thread
 import ast
-from dml_sql import add_order, add_customer
-from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, get_order_list_by_customer
+from dml_sql import add_order, add_customer, add_user
+from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, get_order_list_by_customer, get_user
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5UUh-uNiJMZ<{qWx00z:f!/to|aT0('
+
+
+
+
+
+########################################AUTH#################################################################
+
+class User():
+    def __init__(self, is_active, id, username):
+        self.is_active = is_active
+        self.id = id
+        self.username = username
+
+    def get_id(self):
+        return self.id
+    def is_authenticated(self):
+        return True
 
 
 def get_sqlite_connection():
@@ -29,6 +46,75 @@ def get_sqlite_connection():
     cur = conn.cursor()
     return conn, cur
 
+
+def is_admin():
+
+    try:
+        conn, cursor = get_sqlite_connection()
+        id = current_user.id
+        cursor.execute(f''' select permission from employees where employee_id = {id}''')
+        permission = cursor.fetchone()[0]
+    except Exception as e:
+        return False
+    finally:
+        conn.commit()
+        conn.close()
+    if permission.lower() == 'admin':
+        return True
+    else:
+        return False
+
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    # if request.method == 'POST':
+    #     username = request.form['username']
+    #     password = request.form['password']
+    #     user = User(username=username, password=password)
+    #     db.session.add(user)
+    #     db.session.commit()
+    #     flash('Registration successful. Please log in.')
+    #     return redirect(url_for('login'))
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        conn, cursor = get_sqlite_connection()
+        username = request.form['username']
+        password = request.form['password']
+        user_result = get_user(cursor,password,username)
+        id = user_result[0]
+        username = username
+        user = User(True, id, username)
+        if user:
+            login_user(user)
+            return redirect(url_for('home'))
+        else:
+            flash('Login failed. Please check your credentials.')
+    return render_template('login.html')
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    conn, cursor = get_sqlite_connection()
+    cursor.execute(f'''select username from employees where employee_id = {user_id}''')
+    username = cursor.fetchone()[0]
+    return User(True, user_id, username)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    session.pop('user_id', None)
+    flash('Logged out successfully.')
+    return redirect(url_for('login'))
+
+#########################################################################################################
 def save_image(request, url):
     try:
         # customerNumber = request.form['customerNumber']
@@ -65,9 +151,14 @@ def webcam():
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('home.html')
+    try:
+        admin = is_admin()
+    except Exception as e:
+        admin = False
+    return render_template('home.html', admin=admin)
 
 @app.route('/orders', methods=['GET', 'POST'])
+@login_required
 def orders():
     date_to = request.args.get('date_to', '', type=str)
     date_from = request.args.get('date_from', '', type=str)
@@ -96,6 +187,7 @@ def orders():
 
 
 @app.route('/customers', methods=['GET', 'POST'])
+@login_required
 def customers():
     date_to = request.args.get('date_to', '', type=str)
     date_from = request.args.get('date_from', '', type=str)
@@ -125,6 +217,7 @@ def customers():
 
 
 @app.route('/customer/<customer_id>')
+@login_required
 def customer_detail(customer_id):
     conn, cursor = get_sqlite_connection()
     result = get_customer_detail(cursor, customer_id)
@@ -152,6 +245,7 @@ def customer_detail(customer_id):
     return render_template('customer_detail.html', customer=customer, customer_orders=customer_orders)
 
 @app.route('/order/<order_id>')
+@login_required
 def order_detail(order_id):
     conn, cursor = get_sqlite_connection()
     # Fetch order details based on order_id
@@ -174,15 +268,24 @@ def order_detail(order_id):
 
 
 @app.route('/reports', methods=['GET'])
+@login_required
 def reports():
     return 'This is the reports page'
 
+@app.route('/admin', methods=['GET'])
+@login_required
+def admin():
+    admin = is_admin()
+    return render_template('admin.html', admin=admin)
+
 @app.route('/new_order', methods=['GET', 'POST'])
+@login_required
 def new_order():
     uuid = uuid4().hex
     return render_template('new_order.html',uuid=uuid)
 
 @app.route('/new_customer', methods=['GET','POST'])
+@login_required
 def new_customer():
     uuid = uuid4().hex
     return render_template('new_customer.html',uuid=uuid)
@@ -258,7 +361,7 @@ def unflag_account():
 def order_submit():
     conn, cursor = get_sqlite_connection()
     data = request.form
-    employee_id = 1
+    employee_id = current_user.id
     # data['customer_uuid'] = 11
     add_order(cursor, data, employee_id)
     conn.commit()
@@ -270,11 +373,21 @@ def order_submit():
 def customer_submit():
     conn, cursor = get_sqlite_connection()
     data = request.form
-    add_customer(cursor, data)
+    employee_id = current_user.id
+    add_customer(cursor, data, employee_id)
     conn.commit()
     conn.close()
     return render_template('home.html', submit_customer=True)
 
+@app.route('/add_user', methods=['POST'])
+def add_new_user():
+    conn, cursor = get_sqlite_connection()
+    data = request.form
+    add_user(cursor, data)
+    conn.commit()
+    conn.close()
+    admin = is_admin()
+    return render_template('admin.html', admin=admin)
 
 
 

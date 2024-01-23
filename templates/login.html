@@ -69,18 +69,12 @@
         <a class="navbar-brand" href="/">CashCheck</a>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
-                {% if current_user.is_active %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Log Out</a>
-                </li>
-                {% else %}
                 <li class="nav-item">
                     <a class="nav-link" href="/login">Login</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/support">Support</a>
                 </li>
-                {% endif %}
             </ul>
         </div>
     </nav>
@@ -90,23 +84,25 @@
         <a href="/orders">Orders</a>
         <a href="/customers">Customers</a>
         <a href="/reports">Reports</a>
-        {% if admin %}
-        <a href="/admin">Admin</a>
-        {% endif %}
     </div>
 
     <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-         {% if submit_order %}
-            <h2>Order Submitted Successfully!</h2>
-        {% endif %}
-        {% if submit_customer %}
-            <h2>Customer Added Successfully!</h2>
-        {% endif %}
-        <h1>Welcome to the Cash Checking App</h1>
-        <a href="/new_order" class="btn btn-primary">New Order</a>
-        <a href="/new_customer" class="btn btn-primary">New Customer</a>
-        <!-- Your main content goes here -->
+   <div class="main-content" id="mainContent">
+        <!-- Login Form -->
+        <div class="login-form-container" style="max-width: 400px; margin: auto; padding-top: 50px;">
+            <h2>Login</h2>
+            <form action="/login" method="post">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
     </div>
 
     <script>

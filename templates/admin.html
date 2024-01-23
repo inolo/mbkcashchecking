@@ -96,19 +96,42 @@
     </div>
 
     <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-         {% if submit_order %}
-            <h2>Order Submitted Successfully!</h2>
-        {% endif %}
-        {% if submit_customer %}
-            <h2>Customer Added Successfully!</h2>
-        {% endif %}
-        <h1>Welcome to the Cash Checking App</h1>
-        <a href="/new_order" class="btn btn-primary">New Order</a>
-        <a href="/new_customer" class="btn btn-primary">New Customer</a>
-        <!-- Your main content goes here -->
+    {% if admin %}
+        <div class="main-content" id="mainContent">
+        <!-- Add User Form -->
+        <div class="add-user-form-container" style="max-width: 500px; margin: auto; padding-top: 50px;">
+            <h2>Add User</h2>
+            <form action={{url_for('add_new_user')}} method="post">
+                <div class="form-group">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" class="form-control" id="firstName" name="firstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" class="form-control" id="lastName" name="lastName" required>
+                </div>
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="permission">Permission:</label>
+                    <select class="form-control" id="permission" name="permission">
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Add User</button>
+            </form>
+        </div>
     </div>
-
+    {% else %}
+       <a>You do not have permission to view this page</a>
+    {% endif %}
     <script>
         function toggleSidebar() {
             var sidebar = document.getElementById("sidebar");
@@ -121,6 +144,10 @@
                 mainContent.classList.remove("shift-right");
             }
         }
+
+
+        });
+     });
     </script>
 </body>
 </html>

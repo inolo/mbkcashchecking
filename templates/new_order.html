@@ -102,12 +102,18 @@
         <a class="navbar-brand" href="/">CashCheck</a>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
+                {% if current_user.is_active %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Log Out</a>
+                </li>
+                {% else %}
                 <li class="nav-item">
                     <a class="nav-link" href="/login">Login</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/support">Support</a>
                 </li>
+                {% endif %}
             </ul>
         </div>
     </nav>
@@ -356,15 +362,40 @@ function renderCustomerPage(customers) {
     customerList.innerHTML = ""; // Clear existing list
 
     customers.forEach(function(customer) {
-        var li = document.createElement("li");
-        var a = document.createElement("a");
-        a.textContent = customer;
-        a.href = "javascript:void(0);"; // Prevent the link from redirecting
-        a.onclick = function() { selectCustomer(customer); };
-        li.appendChild(a);
-        customerList.appendChild(li);
-    });
-}
+        const myArray = customer.split("-");
+        let index = myArray.indexOf("FLAGGED");
+        console.log(index)
+        if (index === -1) {
+            // "FLAGGED" not found, create a <p> tag
+            var li = document.createElement("li");
+            var a = document.createElement("a");
+            a.textContent = customer;
+            a.href = "javascript:void(0);"; // Prevent the link from redirecting
+            a.onclick = function() { selectCustomer(customer); };
+            li.appendChild(a);
+            customerList.appendChild(li);
+        } else {
+            // "FLAGGED" found, create an <a> tag inside a <li>
+             var p = document.createElement("p");
+            p.textContent = customer;
+            customerList.appendChild(p);
+
+        }
+    })};
+
+<!--    customers.forEach(function(customer) {-->
+<!--        const myArray = customer.split("-");-->
+<!--        let index = myArray.indexOf("FLAGGED");-->
+
+<!--        var li = document.createElement("li");-->
+<!--        var a = document.createElement("a");-->
+<!--        a.textContent = customer;-->
+<!--        a.href = "javascript:void(0);"; // Prevent the link from redirecting-->
+<!--        a.onclick = function() { selectCustomer(customer); };-->
+<!--        li.appendChild(a);-->
+<!--        customerList.appendChild(li);-->
+<!--    });-->
+<!--}-->
 
 // Function to handle the search
 function searchCustomers() {

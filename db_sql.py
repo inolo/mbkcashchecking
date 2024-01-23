@@ -1,6 +1,14 @@
 import sqlite3
 
 
+def get_user(cursor, password, username):
+    sql = f'''
+    select employee_id, first_name, last_name, permission from employees where password = '{password}' and username = '{username}' 
+    '''
+    cursor.execute(sql)
+    results = cursor.fetchone()
+    return results
+
 def get_db_customers(cursor):
     sql = '''
     select customer_id,first_name, last_name, phone_number, is_flagged from customers

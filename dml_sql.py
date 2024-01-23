@@ -1,5 +1,21 @@
 import sqlite3
 
+def add_user(cursor, data):
+    first_name = data ['firstName']
+    last_name = data['lastName']
+    password = data['password']
+    username = data['username']
+    permission = data['permission']
+
+    sql = f'''
+    INSERT INTO employees ( first_name, last_name, password, username, permission) values 
+    ( '{first_name}', '{last_name}', '{password}', '{username}', '{permission}')
+    
+    '''
+
+    cursor.execute(sql)
+
+
 
 def add_order(cursor, data, employee_id):
     # company = data['company']
@@ -37,7 +53,7 @@ def add_order(cursor, data, employee_id):
     cursor.execute(sql)
 
 
-def add_customer(cursor, data):
+def add_customer(cursor, data, employee_id):
     first_name = data['first_name']
     last_name = data['last_name']
     customer_uuid = data['uuid']
@@ -57,7 +73,8 @@ def add_customer(cursor, data):
       address,
       license_number, 
       customer_photo,
-      customer_license_photo
+      customer_license_photo,
+      employee_id
     )
     values 
     (
@@ -68,7 +85,8 @@ def add_customer(cursor, data):
      '{address}',
      '{license_number}',
      '{customer_photo}',
-     '{customer_license_photo}'
+     '{customer_license_photo}',
+     {employee_id}
     )
     '''
 
