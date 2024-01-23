@@ -16,7 +16,7 @@ import requests
 import numpy as np
 from threading import Thread
 import ast
-from dml_sql import add_order, add_customer, add_user
+from dml_sql import add_order, add_customer, add_user, edit_customer
 from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, get_order_list_by_customer, get_user
 
 
@@ -270,7 +270,7 @@ def order_detail(order_id):
 @app.route('/reports', methods=['GET'])
 @login_required
 def reports():
-    return 'This is the reports page'
+    return render_template('reports.html')
 
 @app.route('/admin', methods=['GET'])
 @login_required
@@ -362,8 +362,9 @@ def order_submit():
     conn, cursor = get_sqlite_connection()
     data = request.form
     employee_id = current_user.id
-    # data['customer_uuid'] = 11
-    add_order(cursor, data, employee_id)
+    time_now = datetime.datetime.now().isoformat()
+    add_order(cursor, data, employee_id, time_now)
+    edit_customer(cursor, data, time_now)
     conn.commit()
     conn.close()
     return render_template('home.html', submit_order=True)
@@ -374,7 +375,8 @@ def customer_submit():
     conn, cursor = get_sqlite_connection()
     data = request.form
     employee_id = current_user.id
-    add_customer(cursor, data, employee_id)
+    time_now = datetime.datetime.now().isoformat()
+    add_customer(cursor, data, employee_id, time_now)
     conn.commit()
     conn.close()
     return render_template('home.html', submit_customer=True)

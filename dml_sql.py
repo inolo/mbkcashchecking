@@ -15,9 +15,15 @@ def add_user(cursor, data):
 
     cursor.execute(sql)
 
+def edit_customer(cursor, data, time_now):
+    customer_number = data['customerSearchField']
+    sql = f'''
+    update customers set last_checked_date = '{time_now}' where customer_id = {customer_number} 
+    '''
+    cursor.execute(sql)
 
 
-def add_order(cursor, data, employee_id):
+def add_order(cursor, data, employee_id, time_now):
     # company = data['company']
     date_issued = data['dateIssued']
     amount = data['amount']
@@ -36,7 +42,8 @@ def add_order(cursor, data, employee_id):
       date_check_issued,
       amount, 
       check_photo,
-      employee_id
+      employee_id,
+      order_create_date
     )
     values 
     (
@@ -46,14 +53,15 @@ def add_order(cursor, data, employee_id):
      '{date_issued}',
      {amount},
      '{base64}',
-     {employee_id}
+     {employee_id},
+     '{time_now}'
     )
     '''
 
     cursor.execute(sql)
 
 
-def add_customer(cursor, data, employee_id):
+def add_customer(cursor, data, employee_id, time_now):
     first_name = data['first_name']
     last_name = data['last_name']
     customer_uuid = data['uuid']
@@ -62,6 +70,7 @@ def add_customer(cursor, data, employee_id):
     phone_number = data['phoneNumber']
     customer_photo = data['customer_base64']
     customer_license_photo = data['license_base64']
+    phone_number = phone_number.replace('-','').replace(')','').replace('.', '').replace('+','').replace('(','')
 
     sql = f'''
     INSERT INTO CUSTOMERS 
@@ -74,7 +83,8 @@ def add_customer(cursor, data, employee_id):
       license_number, 
       customer_photo,
       customer_license_photo,
-      employee_id
+      employee_id,
+      creation_date
     )
     values 
     (
@@ -86,7 +96,8 @@ def add_customer(cursor, data, employee_id):
      '{license_number}',
      '{customer_photo}',
      '{customer_license_photo}',
-     {employee_id}
+     {employee_id},
+     '{time_now}'
     )
     '''
 
