@@ -17,8 +17,7 @@ import numpy as np
 from threading import Thread
 import ast
 from dml_sql import add_order, add_customer, add_user, edit_customer
-from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, get_order_list_by_customer, get_user
-
+from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, get_order_list_by_customer, get_user, get_report_data
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5UUh-uNiJMZ<{qWx00z:f!/to|aT0('
@@ -390,6 +389,30 @@ def add_new_user():
     conn.close()
     admin = is_admin()
     return render_template('admin.html', admin=admin)
+
+@app.route('/report_data', methods=['POST'])
+def report_data():
+    headers = request.headers
+    date_to = headers['DateTo']
+    date_from = headers['DateFrom']
+    conn, cursor = get_sqlite_connection()
+    results = get_report_data(cursor, date_to, date_from)
+    conn.commit()
+    conn.close()
+    all_orders = []
+
+    for row in results:
+        json_temp = {
+            'order_id' : row[0],
+            'customer_id': row[1],
+            'order_create_date' : row[2],
+            'amount' : row[3],
+            'employee_id': row[4]
+        }
+        all_orders.append(json_temp)
+    admin = is_admin()
+    return_results = { 'all_results' : all_orders}
+    return jsonify(return_results)
 
 
 

@@ -9,6 +9,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.17.0a2/full/pyodide.js"></script>
     <style>
         /* Custom styles for sidebar */
         .sidebar {
@@ -101,20 +102,94 @@
             <input type="date" id="dateFrom">
             <label for="dateTo">Date To:</label>
             <input type="date" id="dateTo">
-            <button onclick="pyodide.runPython('process_dates()')">Search</button>
+                        <button
+                type="submit"
+                id="searchButton"
+                class="py-button"
+                py-click="processForm()"
+            >
+                Search
+            </button>
+<!--            <h3>Output</h3>-->
+<div class="row">
+    <div class="col-md-8" id="pandas-output-container">
+        <h3>Output</h3>
+        <div id="pandas-output-inner"></div>
+    </div>
+    <div class="col-md-4" id="summary-container">
+        <h3>Summary</h3>
+        <div id="summary-output"></div>
+        <div id="pandas-output-inner_sum"></div>
+    </div>
+</div>
+<!--            <div id="pandas-output-inner"></div>-->
+<!--            <div id="data-container"></div>-->
+<!--            <div id="summary-output"></div>-->
+<!--            <div id="pandas-output-inner_sum"></div>-->
+<!--            <input type="button" value="Submit" py-script="processForm()">-->
+<!--            <input type="button" id="searchButton" onclick="submitForm()">Search</input>-->
         </div>
 
-    <!-- Main Content -->
+      <py-config type="toml">
+        packages = ["numpy", "beautifulsoup4", "requests", "pandas"]
+      </py-config>
         <py-script>
-            def process_dates():
-                from js import document
-                date_from = document.getElementById('dateFrom').value
-                date_to = document.getElementById('dateTo').value
-                if date_from and date_to:
-                    # Process dates here
-                    print(f"Searching from {date_from} to {date_to}")
-                else:
-                    print("Please select both dates.")
+from pyodide.http import pyfetch
+import asyncio
+import pandas as pd
+from js import document, console
+from pyscript import display
+
+
+
+db_data = None
+async def fetch_data(datefrom,dateto):
+    url = 'http://127.0.0.1:80/report_data'
+    method = 'POST'
+    headers = { 'datefrom' : datefrom, 'dateto': dateto }
+    try:
+        response = await pyfetch(url, method=method, headers=headers)
+        json_response = await response.json()
+        #text_data = binary_data.decode('utf-8')
+        #print(json_response)
+        global db_data
+        db_data = json_response
+    except Exception as e:
+        print(e)
+
+    # Schedule the coroutine for execution
+def trigger(datefrom=None,dateto=None):
+    asyncio.ensure_future(fetch_data(datefrom,dateto))
+    #print(db_data)
+    #time.sleep(2)
+
+
+
+
+def processForm():
+    try:
+        date_from = document.getElementById('dateFrom').value
+        date_to = document.getElementById('dateTo').value
+        trigger(date_from,date_to)
+        #print(f"This is db_data : {db_data}")
+        all_orders = db_data['all_results']
+        #print(f"This is all orders: {all_orders}")
+        df = pd.DataFrame(all_orders)
+        Element('pandas-output-inner').element.innerHTML = ""
+        Element('pandas-output-inner_sum').element.innerHTML = ""
+        Element('summary-output').element.innerHTML = ""
+        display(df, target="pandas-output-inner", append="False")
+        #db_data = None
+        amount_sum = df['amount'].sum()
+        total_orders = len(df.index)
+        total_amount_text = f"Total Amount is: {amount_sum}"
+        total_checks_text = f"Total Checks Cashed: {total_orders}"
+        Element('summary-output').element.innerHTML += f"<p>{total_amount_text}</p>"
+        Element('summary-output').element.innerHTML += f"<p>{total_checks_text}</p>"
+    except Exception as e:
+        console.log(e)
+
+
       </py-script>
 
     <script>
@@ -128,7 +203,24 @@
                 sidebar.style.left = "-200px";
                 mainContent.classList.remove("shift-right");
             }
+
         }
+        function submitForm() {
+            pyodide.runPython(`triggerProcessForm()`);
+        }
+            .content-container {
+        display: flex;
+        justify-content: space-between;
+            }
+
+            #pandas-output-container, #summary-container {
+                flex: 1;
+                padding: 10px;
+            }
+
+            #summary-container {
+                max-width: 300px; /* Adjust as needed */
+            }
     </script>
 </body>
 </html>

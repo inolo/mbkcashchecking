@@ -1,6 +1,15 @@
 import sqlite3
 
 
+def get_report_data(cursor, date_to, date_from):
+    sql = f'''
+    select order_id, customer_id, order_create_date,amount, employee_id from orders where order_create_date > '{date_from}' and  order_create_date < '{date_to}'
+
+    '''
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    return results
+
 def get_user(cursor, password, username):
     sql = f'''
     select employee_id, first_name, last_name, permission from employees where password = '{password}' and username = '{username}' 
