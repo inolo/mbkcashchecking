@@ -41,7 +41,8 @@ create_order_table = '''
   check_account_number INTEGER,
   amount INTEGER, 
   check_photo TEXT,
-  employee_id INTEGER
+  employee_id INTEGER,
+  amount_issued INTEGER
  )
 
 '''

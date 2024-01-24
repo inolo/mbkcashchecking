@@ -155,9 +155,20 @@
 <!--                <label for="accountNumber">Account Number:</label>-->
 <!--                <input type="text" class="form-control" id="accountNumber" name="accountNumber" required>-->
 <!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label for="amount">Amount:</label>-->
+<!--                <input type="number" class="form-control" id="amount" name="amount" required>-->
+<!--            </div>-->
+             <!-- Amount Field -->
             <div class="form-group">
                 <label for="amount">Amount:</label>
-                <input type="number" class="form-control" id="amount" name="amount" required>
+                <input type="number" class="form-control" id="amount" name="amount" required oninput="updateAmountIssued()">
+            </div>
+
+            <!-- Amount Issued Field (Read-only) -->
+            <div class="form-group">
+                <label for="amountIssued">Amount Issued:</label>
+                <input type="text" class="form-control" id="amountIssued" name="amountIssued" readonly>
             </div>
             <div class="form-group">
                 <label for="dateIssued">Date Issued:</label>
@@ -417,7 +428,11 @@ function selectCustomer(customerName) {
     console.log(document.getElementById('customerSearchField').value)
     closeModal();
 }
-
+function updateAmountIssued() {
+    var amount = document.getElementById('amount').value;
+    var amountIssued = amount * 0.80; // 80% of the entered amount
+    document.getElementById('amountIssued').value = amountIssued.toFixed(2); // Update the amount issued field
+}
 
 
     </script>

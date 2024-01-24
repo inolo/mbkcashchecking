@@ -3,7 +3,7 @@ import sqlite3
 
 def get_report_data(cursor, date_to, date_from):
     sql = f'''
-    select order_id, customer_id, order_create_date,amount, employee_id from orders where order_create_date > '{date_from}' and  order_create_date < '{date_to}'
+    select order_id, customer_id, order_create_date,amount, employee_id, amount_issued from orders where order_create_date > '{date_from}' and  order_create_date < '{date_to}'
 
     '''
     cursor.execute(sql)
@@ -31,32 +31,32 @@ def get_db_customers(cursor):
 def get_order_list(cursor, date_from=None, date_to=None, text=None):
     if text:
         sql = f'''
-        select order_id,customer_id, order_create_date, date_check_issued, check_number, amount from orders
+        select order_id,customer_id, order_create_date, date_check_issued, check_number, amount, amount_issued from orders
         where order_id = {text} or customer_id = {text}
         order by order_create_date desc
         '''
     elif date_from and date_to:
         sql = f'''
-        select order_id,customer_id, order_create_date, date_check_issued, check_number, amount from orders
+        select order_id,customer_id, order_create_date, date_check_issued, check_number, amount, amount_issued from orders
         where order_create_date <= '{date_from}'
         and order_create_date >= '{date_to}'
         order by order_create_date desc
         '''
     elif date_from:
         sql = f'''
-        select order_id,customer_id, order_create_date, date_check_issued, check_number, amount from orders
+        select order_id,customer_id, order_create_date, date_check_issued, check_number, amount, amount_issued from orders
         where order_create_date <= '{date_from}'
         order by order_create_date desc
         '''
     elif date_to:
         sql = f'''
-        select order_id,customer_id, order_create_date, date_check_issued, check_number, amount from orders
+        select order_id,customer_id, order_create_date, date_check_issued, check_number, amount, amount_issued from orders
         where order_create_date >= '{date_to}'
         order by order_create_date desc'''
     else:
         sql = '''
         select
-        order_id, customer_id, order_create_date, date_check_issued, check_number, amount
+        order_id, customer_id, order_create_date, date_check_issued, check_number, amount, amount_issued
         from orders 
         order by order_create_date desc'''
 
@@ -124,7 +124,8 @@ def get_order_detail(cursor, order_id):
         date_check_issued,
         check_number,
         amount,
-        order_uuid
+        order_uuid,
+        amount_issued
     from 
     orders
     where order_id = {order_id}

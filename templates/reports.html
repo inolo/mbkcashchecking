@@ -120,6 +120,7 @@
         <h3>Summary</h3>
         <div id="summary-output"></div>
         <div id="pandas-output-inner_sum"></div>
+        <div id="pandas-issued"></div>
     </div>
 </div>
 <!--            <div id="pandas-output-inner"></div>-->
@@ -178,14 +179,19 @@ def processForm():
         Element('pandas-output-inner').element.innerHTML = ""
         Element('pandas-output-inner_sum').element.innerHTML = ""
         Element('summary-output').element.innerHTML = ""
+        Element('pandas-issued').element.innerHTML = ""
         display(df, target="pandas-output-inner", append="False")
         #db_data = None
         amount_sum = df['amount'].sum()
         total_orders = len(df.index)
+        total_issued = df['amount_issued'].sum()
         total_amount_text = f"Total Amount is: {amount_sum}"
         total_checks_text = f"Total Checks Cashed: {total_orders}"
+        total_amount_issued_text = f"Total Amount Issued is: {total_issued}"
         Element('summary-output').element.innerHTML += f"<p>{total_amount_text}</p>"
+        Element('summary-output').element.innerHTML += f"<p>{total_amount_issued_text}</p>"
         Element('summary-output').element.innerHTML += f"<p>{total_checks_text}</p>"
+
     except Exception as e:
         console.log(e)
 

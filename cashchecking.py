@@ -179,6 +179,7 @@ def orders():
         order_detail['date_check_issued'] = result[3]
         order_detail['check_number'] = result[4]
         order_detail['amount'] = result[5]
+        order_detail['amount_issued'] = result[6]
         all_orders.append(order_detail)
 
     return render_template('orders.html', orders_list=all_orders, has_next=has_next, current_page=page, has_prev=has_prev)
@@ -260,7 +261,8 @@ def order_detail(order_id):
         'date_check_issued': result[3],
         'check_number': result[4],
         'amount': result[5],
-        'uuid': result[6]
+        'uuid': result[6],
+        'amount_issued': result[7]
     }
 
     return render_template('order_detail.html', order=order)
@@ -407,7 +409,8 @@ def report_data():
             'customer_id': row[1],
             'order_create_date' : row[2],
             'amount' : row[3],
-            'employee_id': row[4]
+            'employee_id': row[4],
+            'amount_issued' : row[5]
         }
         all_orders.append(json_temp)
     admin = is_admin()

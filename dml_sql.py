@@ -32,6 +32,7 @@ def add_order(cursor, data, employee_id, time_now):
     customer_number = data['customerSearchField']
     uuid = data['uuid']
     base64 = data['base64']
+    amount_issued = data['amountIssued']
 
     sql = f'''
     INSERT INTO ORDERS 
@@ -43,7 +44,8 @@ def add_order(cursor, data, employee_id, time_now):
       amount, 
       check_photo,
       employee_id,
-      order_create_date
+      order_create_date,
+      amount_issued
     )
     values 
     (
@@ -54,7 +56,8 @@ def add_order(cursor, data, employee_id, time_now):
      {amount},
      '{base64}',
      {employee_id},
-     '{time_now}'
+     '{time_now}',
+     {amount_issued}
     )
     '''
 
