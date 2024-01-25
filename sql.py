@@ -64,11 +64,13 @@ create_employees_table = '''
 
 create_companies_table = '''
 CREATE TABLE COMPANIES 
-   company_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    (company_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
     address TEXT,
-    phone_number TEXT
-);
+    phone_number TEXT,
+    employee_id INTEGER,
+    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
 
 '''
 
@@ -76,6 +78,7 @@ CREATE TABLE COMPANIES
 cur.execute(create_order_table)
 cur.execute(create_customers_table)
 cur.execute(create_employees_table)
+cur.execute(create_companies_table)
 cur.execute( """insert into employees ( first_name, last_name, password, username, permission) values ( 'Kevin', 'Nguyen', 'Ilovesushi1!', 'kevin93nguyen', 'admin')""")
 cur.execute( """insert into employees ( first_name, last_name, password, username, permission) values ( 'ivy', 'wong', 'Ilovesushi1!', 'ivywong93', 'admin')""")
 cur.execute( """insert into employees ( first_name, last_name, password, username, permission) values ( 'hazel', 'nguyen', 'Ilovesushi1!', 'hazel22', 'manager')""")

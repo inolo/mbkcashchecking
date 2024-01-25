@@ -16,9 +16,9 @@ import requests
 import numpy as np
 from threading import Thread
 import ast
-from dml_sql import add_order, add_customer, add_user, edit_customer
+from dml_sql import add_order, add_customer, add_user, edit_customer, add_company
 from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, \
-    get_order_list_by_customer, get_user, get_report_data
+    get_order_list_by_customer, get_user, get_report_data, get_db_companies, get_db_companies_detail, get_company_list,get_company_detail
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5UUh-uNiJMZ<{qWx00z:f!/to|aT0('
@@ -192,6 +192,32 @@ def orders():
     return render_template('orders.html', orders_list=all_orders, has_next=has_next, current_page=page,
                            has_prev=has_prev)
 
+@app.route('/companies', methods=['GET', 'POST'])
+@login_required
+def companies():
+    date_to = request.args.get('date_to', '', type=str)
+    date_from = request.args.get('date_from', '', type=str)
+    text = request.args.get('search_text', '', type=str)
+    page = request.args.get('page', 1, type=int)
+    conn, cursor = get_sqlite_connection()
+    results = get_company_list(cursor, date_to, date_from, text)
+    paginated_customers = results[(page - 1) * 100:page * 100]
+    has_next = len(results[(page) * 100:(page + 1) * 100])
+    has_prev = len(results[(page - 2) * 100:(page - 1) * 100])
+    conn.close()
+    all_orders = []
+
+    for result in paginated_customers:
+        company = {}
+        company['company_id'] = result[0]
+        company['name'] = result[1]
+        company['address'] = result[2]
+        company['phone_number'] = result[3]
+        company['creation_date'] = result[4]
+        all_orders.append(company)
+    return render_template('companies.html', orders_list=all_orders, has_next=has_next, current_page=page,
+                           has_prev=has_prev)
+
 
 @app.route('/customers', methods=['GET', 'POST'])
 @login_required
@@ -223,6 +249,25 @@ def customers():
     return render_template('customers.html', orders_list=all_customers, has_next=has_next, current_page=page,
                            has_prev=has_prev)
 
+
+@app.route('/company/<company_id>')
+@login_required
+def company_detail(company_id):
+    conn, cursor = get_sqlite_connection()
+    # Fetch order details based on order_id
+    # For example: order = Order.query.get(order_id)
+    comp, order, customer = get_company_detail(cursor, company_id)
+    conn.close()
+    # Dummy data for illustration
+    comp = {
+        'company_id': comp[0],
+        'name': comp[1],
+        'address': comp[2],
+        'phone_number': comp[3],
+        'creation_date': comp[4],
+    }
+
+    return render_template('company_detail.html', order=order, company=comp, customer=customer)
 
 @app.route('/customer/<customer_id>', methods=['GET', 'POST'])
 @login_required
@@ -363,6 +408,27 @@ def get_customers():
     return jsonify(paginated_customers)
 
 
+@app.route('/get_companies', methods=['POST'])
+def get_companies():
+    filter = request.get_json()
+    filter= filter['filter']
+    conn, cursor = get_sqlite_connection()
+    results = get_db_companies(cursor, filter)
+    conn.close()
+    new_dict = [{'name': item[0]} for item in results]
+    return new_dict
+
+@app.route('/get_company_details', methods=['POST'])
+def get_company_details():
+    filter = request.get_json()
+    filter= filter['companyName']
+    conn, cursor = get_sqlite_connection()
+    results = get_db_companies_detail(cursor, filter)
+    conn.close()
+    details = {'address':results[0], 'phone': results[1]}
+    print(details)
+    return details
+
 @app.route('/save_notes', methods=['POST'])
 def save_notes():
     data = request.data.decode("utf-8")
@@ -413,7 +479,8 @@ def order_submit():
     data = request.form
     employee_id = current_user.id
     time_now = datetime.datetime.now().isoformat()
-    add_order(cursor, data, employee_id, time_now)
+    company_id = add_company(cursor, data, employee_id, time_now)
+    add_order(cursor, data, employee_id, time_now, company_id)
     edit_customer(cursor, data, time_now)
     conn.commit()
     conn.close()
