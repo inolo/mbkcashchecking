@@ -170,7 +170,9 @@ def get_order_list_by_customer(cursor, customer_id):
         date_check_issued,
         check_number,
         amount,
-        order_uuid
+        order_uuid,
+        amount_issued
+        
     from 
     orders
     where customer_id = {customer_id}

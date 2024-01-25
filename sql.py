@@ -42,7 +42,8 @@ create_order_table = '''
   amount INTEGER, 
   check_photo TEXT,
   employee_id INTEGER,
-  amount_issued INTEGER
+  amount_issued INTEGER,
+  company_id INTEGER
  )
 
 '''
@@ -59,6 +60,16 @@ create_employees_table = '''
  permission TEXT,
  is_active BOOLEAN
  )
+'''
+
+create_companies_table = '''
+CREATE TABLE COMPANIES 
+   company_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    address TEXT,
+    phone_number TEXT
+);
+
 '''
 
 

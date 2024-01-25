@@ -17,13 +17,11 @@ import numpy as np
 from threading import Thread
 import ast
 from dml_sql import add_order, add_customer, add_user, edit_customer
-from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, get_order_list_by_customer, get_user, get_report_data
+from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, \
+    get_order_list_by_customer, get_user, get_report_data
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5UUh-uNiJMZ<{qWx00z:f!/to|aT0('
-
-
-
 
 
 ########################################AUTH#################################################################
@@ -36,6 +34,7 @@ class User():
 
     def get_id(self):
         return self.id
+
     def is_authenticated(self):
         return True
 
@@ -47,7 +46,6 @@ def get_sqlite_connection():
 
 
 def is_admin():
-
     try:
         conn, cursor = get_sqlite_connection()
         id = current_user.id
@@ -64,7 +62,6 @@ def is_admin():
         return False
 
 
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     # if request.method == 'POST':
@@ -77,25 +74,31 @@ def register():
     #     return redirect(url_for('login'))
     return render_template('register.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        conn, cursor = get_sqlite_connection()
-        username = request.form['username']
-        password = request.form['password']
-        user_result = get_user(cursor,password,username)
-        id = user_result[0]
-        username = username
-        user = User(True, id, username)
-        if user:
-            login_user(user)
-            return redirect(url_for('home'))
-        else:
-            flash('Login failed. Please check your credentials.')
-    return render_template('login.html')
+    try:
+        if request.method == 'POST':
+            conn, cursor = get_sqlite_connection()
+            username = request.form['username']
+            password = request.form['password']
+            user_result = get_user(cursor, password, username)
+            id = user_result[0]
+            username = username
+            user = User(True, id, username)
+            if user:
+                login_user(user)
+                return redirect(url_for('home'))
+            else:
+                flash('Login failed. Please check your credentials.')
+        return render_template('login.html')
+    except Exception as e:
+        return render_template('login.html')
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -112,6 +115,7 @@ def logout():
     session.pop('user_id', None)
     flash('Logged out successfully.')
     return redirect(url_for('login'))
+
 
 #########################################################################################################
 def save_image(request, url):
@@ -132,11 +136,13 @@ def save_image(request, url):
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
-    return save_image(request,'customer_photo')
+    return save_image(request, 'customer_photo')
+
 
 @app.route('/upload_license_image', methods=['POST'])
 def upload_license_image():
     return save_image(request, 'license_copy')
+
 
 @app.route('/upload_check_copy', methods=['POST'])
 def upload_check_copy():
@@ -156,6 +162,7 @@ def home():
         admin = False
     return render_template('home.html', admin=admin)
 
+
 @app.route('/orders', methods=['GET', 'POST'])
 @login_required
 def orders():
@@ -166,8 +173,8 @@ def orders():
     conn, cursor = get_sqlite_connection()
     results = get_order_list(cursor, date_to, date_from, text)
     paginated_customers = results[(page - 1) * 100:page * 100]
-    has_next = len(results[(page) * 100:(page+1) * 100])
-    has_prev = len(results[(page-2) * 100:(page-1) * 100])
+    has_next = len(results[(page) * 100:(page + 1) * 100])
+    has_prev = len(results[(page - 2) * 100:(page - 1) * 100])
     conn.close()
     all_orders = []
 
@@ -182,8 +189,8 @@ def orders():
         order_detail['amount_issued'] = result[6]
         all_orders.append(order_detail)
 
-    return render_template('orders.html', orders_list=all_orders, has_next=has_next, current_page=page, has_prev=has_prev)
-
+    return render_template('orders.html', orders_list=all_orders, has_next=has_next, current_page=page,
+                           has_prev=has_prev)
 
 
 @app.route('/customers', methods=['GET', 'POST'])
@@ -196,8 +203,8 @@ def customers():
     conn, cursor = get_sqlite_connection()
     results = get_customer_list(cursor, date_to, date_from, text)
     paginated_customers = results[(page - 1) * 100:page * 100]
-    has_next = len(results[(page) * 100:(page+1) * 100])
-    has_prev = len(results[(page-2) * 100:(page-1) * 100])
+    has_next = len(results[(page) * 100:(page + 1) * 100])
+    has_prev = len(results[(page - 2) * 100:(page - 1) * 100])
     conn.close()
     all_customers = []
 
@@ -213,12 +220,45 @@ def customers():
         order_detail['account_creation'] = result[6]
         order_detail['last_checked'] = result[7]
         all_customers.append(order_detail)
-    return render_template('customers.html', orders_list=all_customers, has_next=has_next, current_page=page, has_prev=has_prev)
+    return render_template('customers.html', orders_list=all_customers, has_next=has_next, current_page=page,
+                           has_prev=has_prev)
 
 
-@app.route('/customer/<customer_id>')
+@app.route('/customer/<customer_id>', methods=['GET', 'POST'])
 @login_required
 def customer_detail(customer_id):
+    if request.method == 'POST':
+        headers = request.headers
+        conn, cursor = get_sqlite_connection()
+        result = get_customer_detail(cursor, customer_id)
+        orders_list = get_order_list_by_customer(cursor, customer_id)
+        result = result[0]
+        conn.close()
+        # Dummy data for illustration
+        customer = {
+            'id': customer_id,
+            'first_name': result[1],
+            'last_name': result[2],
+            'phone_number': result[3],
+            'address': result[4],
+            'license_number': result[5],
+            'account_creation': result[6],
+            'last_checked': result[7],
+            'uuid': result[8],
+            'is_flagged': result[9],
+            'notes': result[10]
+        }
+        customer_orders = []
+        for order in orders_list:
+            new_dict = {'order_number': order[0], 'order_create_date': order[2], 'date_check_issued': order[3],
+                        'check_number': order[4], 'amount': order[5], 'amount_issued': order[7]}
+            customer_orders.append(new_dict)
+
+        if headers['request'] == 'customer':
+            return customer
+        elif headers['request'] == 'order_list':
+            return customer_orders
+
     conn, cursor = get_sqlite_connection()
     result = get_customer_detail(cursor, customer_id)
     orders_list = get_order_list_by_customer(cursor, customer_id)
@@ -235,14 +275,16 @@ def customer_detail(customer_id):
         'account_creation': result[6],
         'last_checked': result[7],
         'uuid': result[8],
-        'is_flagged' : result[9],
+        'is_flagged': result[9],
         'notes': result[10]
     }
     customer_orders = []
     for order in orders_list:
-        new_dict =  {'order_number': order[0], 'order_create_date': order[2], 'date_check_issued': order[3], 'check_number': order[4], 'amount': order[5]}
+        new_dict = {'order_number': order[0], 'order_create_date': order[2], 'date_check_issued': order[3],
+                    'check_number': order[4], 'amount': order[5], 'amount_issued': order[7]}
         customer_orders.append(new_dict)
     return render_template('customer_detail.html', customer=customer, customer_orders=customer_orders)
+
 
 @app.route('/order/<order_id>')
 @login_required
@@ -273,27 +315,32 @@ def order_detail(order_id):
 def reports():
     return render_template('reports.html')
 
+
 @app.route('/admin', methods=['GET'])
 @login_required
 def admin():
     admin = is_admin()
     return render_template('admin.html', admin=admin)
 
+
 @app.route('/new_order', methods=['GET', 'POST'])
 @login_required
 def new_order():
     uuid = uuid4().hex
-    return render_template('new_order.html',uuid=uuid)
+    return render_template('new_order.html', uuid=uuid)
 
-@app.route('/new_customer', methods=['GET','POST'])
+
+@app.route('/new_customer', methods=['GET', 'POST'])
 @login_required
 def new_customer():
     uuid = uuid4().hex
-    return render_template('new_customer.html',uuid=uuid)
+    return render_template('new_customer.html', uuid=uuid)
+
 
 @app.route('/order_list')
 def orders_list():
     pass
+
 
 @app.route('/get_customers')
 def get_customers():
@@ -309,8 +356,9 @@ def get_customers():
     query = request.args.get('query', '', type=str)
     # Implement search and pagination logic
     # For simplicity, this example just slices the customer list
-    filtered_customers = [c for c in customer_list if query.lower() in c.lower() or query.lower() in c.lower().replace('-', ' ')]
-    paginated_customers = filtered_customers[(page-1)*limit:page*limit]
+    filtered_customers = [c for c in customer_list if
+                          query.lower() in c.lower() or query.lower() in c.lower().replace('-', ' ')]
+    paginated_customers = filtered_customers[(page - 1) * limit:page * limit]
 
     return jsonify(paginated_customers)
 
@@ -321,7 +369,7 @@ def save_notes():
     data = ast.literal_eval(data)
     print(data)
     notes = data['notes']
-    customer_id = data['customerId'].split(':')[-1].replace('}','').replace('"','').replace(' ','')
+    customer_id = data['customerId'].split(':')[-1].replace('}', '').replace('"', '').replace(' ', '')
     print(notes)
     print(customer_id)
     conn, cursor = get_sqlite_connection()
@@ -331,12 +379,13 @@ def save_notes():
     conn.close()
     return jsonify(success=True)
 
+
 @app.route('/flag_account', methods=['POST'])
 def flag_account():
     print('hello')
     data = request.data.decode("utf-8")
     print(data)
-    id = data.split(':')[-1].replace('}','').replace('"','').replace(' ','')
+    id = data.split(':')[-1].replace('}', '').replace('"', '').replace(' ', '')
     conn, cursor = get_sqlite_connection()
     sql = f''' update customers set is_flagged = 1 where customer_id = {id}'''
     cursor.execute(sql)
@@ -348,7 +397,7 @@ def flag_account():
 @app.route('/unflag_account', methods=['POST'])
 def unflag_account():
     data = request.data.decode("utf-8")
-    id = data.split(':')[-1].replace('}','').replace('"','').replace(' ','')
+    id = data.split(':')[-1].replace('}', '').replace('"', '').replace(' ', '')
     conn, cursor = get_sqlite_connection()
     sql = f''' update customers set is_flagged = 0 where customer_id = {id}'''
     cursor.execute(sql)
@@ -382,6 +431,7 @@ def customer_submit():
     conn.close()
     return render_template('home.html', submit_customer=True)
 
+
 @app.route('/add_user', methods=['POST'])
 def add_new_user():
     conn, cursor = get_sqlite_connection()
@@ -391,6 +441,7 @@ def add_new_user():
     conn.close()
     admin = is_admin()
     return render_template('admin.html', admin=admin)
+
 
 @app.route('/report_data', methods=['POST'])
 def report_data():
@@ -405,18 +456,17 @@ def report_data():
 
     for row in results:
         json_temp = {
-            'order_id' : row[0],
+            'order_id': row[0],
             'customer_id': row[1],
-            'order_create_date' : row[2],
-            'amount' : row[3],
+            'order_create_date': row[2],
+            'amount': row[3],
             'employee_id': row[4],
-            'amount_issued' : row[5]
+            'amount_issued': row[5]
         }
         all_orders.append(json_temp)
     admin = is_admin()
-    return_results = { 'all_results' : all_orders}
+    return_results = {'all_results': all_orders}
     return jsonify(return_results)
-
 
 
 if __name__ == "__main__":

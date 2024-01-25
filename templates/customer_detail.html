@@ -273,6 +273,7 @@
                     <th>Date Check Issued</th>
                     <th>Check Number</th>
                     <th>Amount</th>
+                    <th>Amount Issued</th>
                 </tr>
             </thead>
             <tbody>
@@ -283,6 +284,7 @@
                         <td>{{ order.date_check_issued }}</td>
                         <td>{{ order.check_number }}</td>
                         <td>{{ order.amount }}</td>
+                        <td>{{ order.amount_issued }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
