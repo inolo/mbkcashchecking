@@ -51,8 +51,8 @@ def get_company_list(cursor, date_from=None, date_to=None, text=None):
     '''
 
     if text:
-        sql += 'WHERE company_id = ? '
-        params = (text)
+        sql += 'WHERE company_id = ? or name like ? '''
+        params = (text, '%' + text + '%',)
     elif date_from and date_to:
         sql += 'WHERE creation_date <= ? AND creation_date >= ? '
         params = (date_from, date_to)
@@ -65,7 +65,7 @@ def get_company_list(cursor, date_from=None, date_to=None, text=None):
     else:
         params = ()
 
-    sql += 'ORDER BY name asc'
+    sql += ' ORDER BY name asc'
     cursor.execute(sql, params)
     results = cursor.fetchall()
     return results
