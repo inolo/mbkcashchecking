@@ -24,7 +24,6 @@
             padding-top: 20px;
             transition: 0.5s; /* Smooth transition */
         }
-
         .sidebar a {
             padding: 6px 8px 6px 16px;
             text-decoration: none;
@@ -32,22 +31,18 @@
             color: #333;
             display: block;
         }
-
         .sidebar a:hover {
             color: #007bff;
         }
-
         /* Style for the content */
         .main-content {
             transition: margin-left .5s; /* Smooth transition */
             padding: 20px;
         }
-
         /* When the sidebar is shown, add 200px margin */
         .main-content.shift-right {
             margin-left: 200px;
         }
-
         /* Navigation Bar */
         .navbar {
             z-index: 2; /* Ensure navbar is above sidebar */
@@ -55,12 +50,11 @@
         body {
             cursor: default;
         }
-
         a, button {
             cursor: pointer;
         }
     </style>
-     <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
     <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
 </head>
 <body>
@@ -94,48 +88,50 @@
         <a href="/customers">Customers</a>
         <a href="/companies">Companies</a>
         <a href="/reports">Reports</a>
-        {% if admin %}
         <a href="/admin">Admin</a>
-        {% endif %}
     </div>
-        <div>
-            <label for="dateFrom">Date From:</label>
-            <input type="date" id="dateFrom">
-            <label for="dateTo">Date To:</label>
-            <input type="date" id="dateTo">
-                        <button
-                type="submit"
-                id="searchButton"
-                class="py-button"
-                py-click="processForm()"
-            >
-                Search
-            </button>
-<!--            <h3>Output</h3>-->
-<div class="row">
-    <div class="col-md-8" id="pandas-output-container">
-        <h3>Output</h3>
-        <div id="pandas-output-inner"></div>
-    </div>
-    <div class="col-md-4" id="summary-container">
-        <h3>Summary</h3>
-        <div id="summary-output"></div>
-        <div id="pandas-output-inner_sum"></div>
-        <div id="pandas-issued"></div>
-    </div>
-</div>
-<!--            <div id="pandas-output-inner"></div>-->
-<!--            <div id="data-container"></div>-->
-<!--            <div id="summary-output"></div>-->
-<!--            <div id="pandas-output-inner_sum"></div>-->
-<!--            <input type="button" value="Submit" py-script="processForm()">-->
-<!--            <input type="button" id="searchButton" onclick="submitForm()">Search</input>-->
-        </div>
 
-      <py-config type="toml">
+    <div>
+        <label for="dateFrom">Date From:</label>
+        <input type="date" id="dateFrom">
+        <label for="dateTo">Date To:</label>
+        <input type="date" id="dateTo">
+        <button type="submit" id="searchButton" class="py-button" py-click="processForm()">Search</button>
+
+        <div class="row">
+            <div class="col-md-8" id="pandas-output-container">
+                <h3>Monterey Output</h3>
+                <div id="pandas-output-inner"></div>
+            </div>
+            <div class="col-md-4" id="summary-container">
+                <h3>Monterey Summary</h3>
+                <div id="summary-output"></div>
+                <div id="pandas-output-inner_sum"></div>
+                <div id="pandas-issued"></div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <hr>
+        <br>
+        <div class="row">
+            <div class="col-md-8" id="pandas-output-container2">
+                <h3>Conoco Output</h3>
+                <div id="pandas-output-inner2"></div>
+            </div>
+            <div class="col-md-4" id="summary-container2">
+                <h3>Conoco Summary</h3>
+                <div id="summary-output2"></div>
+                <div id="pandas-output-inner_sum2"></div>
+                <div id="pandas-issued2"></div>
+            </div>
+        </div>
+    </div>
+
+    <py-config type="toml">
         packages = ["numpy", "beautifulsoup4", "requests", "pandas"]
-      </py-config>
-        <py-script>
+    </py-config>
+     <py-script>
 from pyodide.http import pyfetch
 import asyncio
 import pandas as pd
@@ -146,7 +142,8 @@ from pyscript import display
 
 db_data = None
 async def fetch_data(datefrom,dateto):
-    url = 'http://127.0.0.1:80/report_data'
+    url = 'https://mbkcashchecking.com/report_data'
+#    url = 'http://127.0.0.1/report_data'
     method = 'POST'
     headers = { 'datefrom' : datefrom, 'dateto': dateto }
     try:
@@ -177,57 +174,328 @@ def processForm():
         all_orders = db_data['all_results']
         #print(f"This is all orders: {all_orders}")
         df = pd.DataFrame(all_orders)
+        monterey_df = df[df['store'].str.lower()== 'monterey']
+        conoco_df = df[df['store'].str.lower()== 'conoco']
+        #monterey_df = df
+        #conoco_df = df
         Element('pandas-output-inner').element.innerHTML = ""
         Element('pandas-output-inner_sum').element.innerHTML = ""
         Element('summary-output').element.innerHTML = ""
         Element('pandas-issued').element.innerHTML = ""
-        display(df, target="pandas-output-inner", append="False")
+        Element('pandas-output-inner2').element.innerHTML = ""
+        Element('pandas-output-inner_sum2').element.innerHTML = ""
+        Element('summary-output2').element.innerHTML = ""
+        Element('pandas-issued2').element.innerHTML = ""
+        display(monterey_df, target="pandas-output-inner", append="False")
+        display(conoco_df, target="pandas-output-inner2", append="False")
         #db_data = None
-        amount_sum = df['amount'].sum()
-        total_orders = len(df.index)
-        total_issued = df['amount_issued'].sum()
+        amount_sum = monterey_df['amount'].sum()
+        total_orders = len(monterey_df.index)
+        total_issued = monterey_df['amount_issued'].sum()
         total_amount_text = f"Total Amount is: {amount_sum}"
         total_checks_text = f"Total Checks Cashed: {total_orders}"
-        total_amount_issued_text = f"Total Amount Issued is: {total_issued}"
+        total_amount_issued_text= f"Total Amount Issued is: {total_issued}"
+
+
+
+        amount_sum2 = conoco_df['amount'].sum()
+        total_orders2 = len(conoco_df.index)
+        total_issued2 = conoco_df['amount_issued'].sum()
+        total_amount_text2 = f"Total Amount is: {amount_sum2}"
+        total_checks_text2 = f"Total Checks Cashed: {total_orders2}"
+        total_amount_issued_text2 = f"Total Amount Issued is: {total_issued2}"
         Element('summary-output').element.innerHTML += f"<p>{total_amount_text}</p>"
         Element('summary-output').element.innerHTML += f"<p>{total_amount_issued_text}</p>"
         Element('summary-output').element.innerHTML += f"<p>{total_checks_text}</p>"
-
+        Element('summary-output2').element.innerHTML += f"<p>{total_amount_text2}</p>"
+        Element('summary-output2').element.innerHTML += f"<p>{total_amount_issued_text2}</p>"
+        Element('summary-output2').element.innerHTML += f"<p>{total_checks_text2}</p>"
     except Exception as e:
         console.log(e)
 
 
       </py-script>
 
+
     <script>
         function toggleSidebar() {
             var sidebar = document.getElementById("sidebar");
-            var mainContent = document.getElementById("mainContent");
             if (sidebar.style.left === "-200px") {
                 sidebar.style.left = "0";
-                mainContent.classList.add("shift-right");
             } else {
                 sidebar.style.left = "-200px";
-                mainContent.classList.remove("shift-right");
             }
-
         }
+
         function submitForm() {
             pyodide.runPython(`triggerProcessForm()`);
         }
-            .content-container {
-        display: flex;
-        justify-content: space-between;
-            }
-
-            #pandas-output-container, #summary-container {
-                flex: 1;
-                padding: 10px;
-            }
-
-            #summary-container {
-                max-width: 300px; /* Adjust as needed */
-            }
     </script>
 </body>
 </html>
+
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta http-equiv="X-UA-Compatible" content="IE=edge">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Cash Checking App</title>-->
+<!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">-->
+<!--    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>-->
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>-->
+<!--    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>-->
+<!--    <script src="https://cdn.jsdelivr.net/pyodide/v0.17.0a2/full/pyodide.js"></script>-->
+<!--    <style>-->
+<!--        /* Custom styles for sidebar */-->
+<!--        .sidebar {-->
+<!--            height: calc(100vh - 56px);-->
+<!--            width: 200px;-->
+<!--            position: fixed;-->
+<!--            z-index: 1;-->
+<!--            top: 56px;-->
+<!--            left: -200px; /* Initially hidden */-->
+<!--            background-color: #f8f9fa;-->
+<!--            overflow-x: hidden;-->
+<!--            padding-top: 20px;-->
+<!--            transition: 0.5s; /* Smooth transition */-->
+<!--        }-->
+
+<!--        .sidebar a {-->
+<!--            padding: 6px 8px 6px 16px;-->
+<!--            text-decoration: none;-->
+<!--            font-size: 16px;-->
+<!--            color: #333;-->
+<!--            display: block;-->
+<!--        }-->
+
+<!--        .sidebar a:hover {-->
+<!--            color: #007bff;-->
+<!--        }-->
+
+<!--        /* Style for the content */-->
+<!--        .main-content {-->
+<!--            transition: margin-left .5s; /* Smooth transition */-->
+<!--            padding: 20px;-->
+<!--        }-->
+
+<!--        /* When the sidebar is shown, add 200px margin */-->
+<!--        .main-content.shift-right {-->
+<!--            margin-left: 200px;-->
+<!--        }-->
+
+<!--        /* Navigation Bar */-->
+<!--        .navbar {-->
+<!--            z-index: 2; /* Ensure navbar is above sidebar */-->
+<!--        }-->
+<!--        body {-->
+<!--            cursor: default;-->
+<!--        }-->
+
+<!--        a, button {-->
+<!--            cursor: pointer;-->
+<!--        }-->
+<!--    </style>-->
+<!--     <script defer src="https://pyscript.net/latest/pyscript.js"></script>-->
+<!--    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />-->
+<!--</head>-->
+<!--<body>-->
+<!--    &lt;!&ndash; Navigation Bar &ndash;&gt;-->
+<!--    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">-->
+<!--        <span style="color: white; cursor: pointer" class="navbar-brand" onclick="toggleSidebar()">-->
+<!--            &#9776; &lt;!&ndash; Unicode for menu icon &ndash;&gt;-->
+<!--        </span>-->
+<!--        <a class="navbar-brand" href="/">CashCheck</a>-->
+<!--        <div class="collapse navbar-collapse" id="navbarNav">-->
+<!--            <ul class="navbar-nav ml-auto">-->
+<!--                {% if current_user.is_active %}-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/logout">Log Out</a>-->
+<!--                </li>-->
+<!--                {% else %}-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/login">Login</a>-->
+<!--                </li>-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/support">Support</a>-->
+<!--                </li>-->
+<!--                {% endif %}-->
+<!--            </ul>-->
+<!--        </div>-->
+<!--    </nav>-->
+
+<!--    &lt;!&ndash; Sidebar &ndash;&gt;-->
+<!--    <div class="sidebar" id="sidebar">-->
+<!--        <a href="/orders">Orders</a>-->
+<!--        <a href="/customers">Customers</a>-->
+<!--        <a href="/companies">Companies</a>-->
+<!--        <a href="/reports">Reports</a>-->
+<!--        <a href="/admin">Admin</a>-->
+<!--    </div>-->
+<!--        <div>-->
+<!--            <label for="dateFrom">Date From:</label>-->
+<!--            <input type="date" id="dateFrom">-->
+<!--            <label for="dateTo">Date To:</label>-->
+<!--            <input type="date" id="dateTo">-->
+<!--                        <button-->
+<!--                type="submit"-->
+<!--                id="searchButton"-->
+<!--                class="py-button"-->
+<!--                py-click="processForm()"-->
+<!--            >-->
+<!--                Search-->
+<!--            </button>-->
+<!--&lt;!&ndash;            <h3>Output</h3>&ndash;&gt;-->
+<!--<div class="row">-->
+<!--    <div class="col-md-8" id="pandas-output-container">-->
+<!--        <h3>Output</h3>-->
+<!--        <div id="pandas-output-inner"></div>-->
+<!--    </div>-->
+<!--    <div class="col-md-4" id="summary-container">-->
+<!--        <h3>Summary</h3>-->
+<!--        <div id="summary-output"></div>-->
+<!--        <div id="pandas-output-inner_sum"></div>-->
+<!--        <div id="pandas-issued"></div>-->
+<!--    </div>-->
+<!--</div>-->
+
+
+<!--        <div class="row">-->
+<!--        <div class="col-md-8" id="pandas-output-container2">-->
+<!--        <h3>Output</h3>-->
+<!--        <div id="pandas-output-inner2"></div>-->
+<!--        </div>-->
+<!--        <div class="col-md-4" id="summary-container2">-->
+<!--        <h3>Summary</h3>-->
+<!--        <div id="summary-output2"></div>-->
+<!--        <div id="pandas-output-inner_sum2"></div>-->
+<!--        <div id="pandas-issued2"></div>-->
+<!--        </div>-->
+<!--        </div>-->
+<!--&lt;!&ndash;            <div id="pandas-output-inner"></div>&ndash;&gt;-->
+<!--&lt;!&ndash;            <div id="data-container"></div>&ndash;&gt;-->
+<!--&lt;!&ndash;            <div id="summary-output"></div>&ndash;&gt;-->
+<!--&lt;!&ndash;            <div id="pandas-output-inner_sum"></div>&ndash;&gt;-->
+<!--&lt;!&ndash;            <input type="button" value="Submit" py-script="processForm()">&ndash;&gt;-->
+<!--&lt;!&ndash;            <input type="button" id="searchButton" onclick="submitForm()">Search</input>&ndash;&gt;-->
+<!--        </div>-->
+
+<!--      <py-config type="toml">-->
+<!--        packages = ["numpy", "beautifulsoup4", "requests", "pandas"]-->
+<!--      </py-config>-->
+<!--        <py-script>-->
+<!--from pyodide.http import pyfetch-->
+<!--import asyncio-->
+<!--import pandas as pd-->
+<!--from js import document, console-->
+<!--from pyscript import display-->
+
+
+
+<!--db_data = None-->
+<!--async def fetch_data(datefrom,dateto):-->
+<!--#&lt;!&ndash;    url = 'https/mbkcashchecking.com/report_data'&ndash;&gt;-->
+<!--    url = 'http://127.0.0.1/report_data'-->
+<!--    method = 'POST'-->
+<!--    headers = { 'datefrom' : datefrom, 'dateto': dateto }-->
+<!--    try:-->
+<!--        response = await pyfetch(url, method=method, headers=headers)-->
+<!--        json_response = await response.json()-->
+<!--        #text_data = binary_data.decode('utf-8')-->
+<!--        #print(json_response)-->
+<!--        global db_data-->
+<!--        db_data = json_response-->
+<!--    except Exception as e:-->
+<!--        print(e)-->
+
+<!--    # Schedule the coroutine for execution-->
+<!--def trigger(datefrom=None,dateto=None):-->
+<!--    asyncio.ensure_future(fetch_data(datefrom,dateto))-->
+<!--    #print(db_data)-->
+<!--    #time.sleep(2)-->
+
+
+
+
+<!--def processForm():-->
+<!--    try:-->
+<!--        date_from = document.getElementById('dateFrom').value-->
+<!--        date_to = document.getElementById('dateTo').value-->
+<!--        trigger(date_from,date_to)-->
+<!--        #print(f"This is db_data : {db_data}")-->
+<!--        all_orders = db_data['all_results']-->
+<!--        #print(f"This is all orders: {all_orders}")-->
+<!--        df = pd.DataFrame(all_orders)-->
+<!--        monterey_df = df[df['store'].str.lower()== 'monterey']-->
+<!--        conoco_df = df[df['store'].str.lower()== 'conoco']-->
+<!--        #monterey_df = df-->
+<!--        #conoco_df = df-->
+<!--        Element('pandas-output-inner').element.innerHTML = ""-->
+<!--        Element('pandas-output-inner_sum').element.innerHTML = ""-->
+<!--        Element('summary-output').element.innerHTML = ""-->
+<!--        Element('pandas-issued').element.innerHTML = ""-->
+<!--        Element('pandas-output-inner2').element.innerHTML = ""-->
+<!--        Element('pandas-output-inner_sum2').element.innerHTML = ""-->
+<!--        Element('summary-output2').element.innerHTML = ""-->
+<!--        Element('pandas-issued2').element.innerHTML = ""-->
+<!--        display(monterey_df, target="pandas-output-inner", append="False")-->
+<!--        display(conoco_df, target="pandas-output-inner", append="False")-->
+<!--        #db_data = None-->
+<!--        amount_sum = monterey_df['amount'].sum()-->
+<!--        total_orders = len(monterey_df.index)-->
+<!--        total_issued = monterey_df['amount_issued'].sum()-->
+<!--        total_amount_text = f"Total Amount is: {amount_sum}"-->
+<!--        total_checks_text = f"Total Checks Cashed: {total_orders}"-->
+
+
+
+<!--        amount_sum2 = conoco_df['amount'].sum()-->
+<!--        total_orders2 = len(conoco_df.index)-->
+<!--        total_issued2 = conoco_df['amount_issued'].sum()-->
+<!--        total_amount_text2 = f"Total Amount is: {amount_sum2}"-->
+<!--        total_checks_text2 = f"Total Checks Cashed: {total_orders2}"-->
+<!--        total_amount_issued_text2 = f"Total Amount Issued is: {total_issued2}"-->
+<!--        Element('summary-output').element.innerHTML += f"<p>{total_amount_text}</p>"-->
+<!--        Element('summary-output').element.innerHTML += f"<p>{total_amount_issued_text}</p>"-->
+<!--        Element('summary-output').element.innerHTML += f"<p>{total_checks_text}</p>"-->
+<!--        Element('summary-output2').element.innerHTML += f"<p>{total_amount_text2}</p>"-->
+<!--        Element('summary-output2').element.innerHTML += f"<p>{total_amount_issued_text2}</p>"-->
+<!--        Element('summary-output2').element.innerHTML += f"<p>{total_checks_text2}</p>"-->
+
+<!--    except Exception as e:-->
+<!--        console.log(e)-->
+
+
+<!--      </py-script>-->
+
+<!--    <script>-->
+
+<!--            function toggleSidebar() {-->
+<!--            var sidebar = document.getElementById("sidebar");-->
+<!--            var mainContent = document.getElementById("mainContent");-->
+<!--            if (sidebar.style.left === "-200px") {-->
+<!--                sidebar.style.left = "0";-->
+<!--            } else {-->
+<!--                sidebar.style.left = "-200px";-->
+<!--            }-->
+<!--        }-->
+<!--&lt;!&ndash;        function toggleSidebar() {&ndash;&gt;-->
+<!--&lt;!&ndash;            var sidebar = document.getElementById("sidebar");&ndash;&gt;-->
+<!--&lt;!&ndash;            var mainContent = document.getElementById("mainContent");&ndash;&gt;-->
+<!--&lt;!&ndash;            if (sidebar.style.left === "-200px") {&ndash;&gt;-->
+<!--&lt;!&ndash;                sidebar.style.left = "0";&ndash;&gt;-->
+<!--&lt;!&ndash;                mainContent.classList.add("shift-right");&ndash;&gt;-->
+<!--&lt;!&ndash;            } else {&ndash;&gt;-->
+<!--&lt;!&ndash;                sidebar.style.left = "-200px";&ndash;&gt;-->
+<!--&lt;!&ndash;                mainContent.classList.remove("shift-right");&ndash;&gt;-->
+<!--&lt;!&ndash;            }&ndash;&gt;-->
+
+<!--&lt;!&ndash;        };&ndash;&gt;-->
+<!--        function submitForm() {-->
+<!--            pyodide.runPython(`triggerProcessForm()`);-->
+<!--        }-->
+
+<!--    </script>-->
+<!--</body>-->
+<!--</html>-->

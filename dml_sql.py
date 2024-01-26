@@ -4,6 +4,7 @@ def add_user(cursor, data):
     password = data['password']
     username = data['username']
     permission = data['permission']
+    print(first_name,last_name,password,username,permission)
 
     sql = '''
     INSERT INTO employees (first_name, last_name, password, username, permission) 
@@ -54,20 +55,21 @@ def add_customer(cursor, data, employee_id, time_now):
     customer_photo = data['customer_base64']
     customer_license_photo = data['license_base64']
     phone_number = phone_number.replace('-', '').replace(')', '').replace('.', '').replace('+', '').replace('(', '')
+    store = data['store']
 
     sql = '''
     INSERT INTO CUSTOMERS 
     (
       first_name, last_name, customer_uuid, phone_number, address, license_number, 
-      customer_photo, customer_license_photo, employee_id, creation_date
+      customer_photo, customer_license_photo, employee_id, creation_date, store
     )
     VALUES 
-    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
     '''
 
     cursor.execute(sql, (first_name, last_name, customer_uuid, phone_number, address,
                          license_number, customer_photo, customer_license_photo,
-                         employee_id, time_now))
+                         employee_id, time_now, store))
 
 def add_company(cursor, data, employee_id, time_now):
     company = data['company'].lower()

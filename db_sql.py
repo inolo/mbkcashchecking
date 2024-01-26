@@ -2,7 +2,7 @@ import sqlite3
 
 def get_db_companies(cursor, filter):
     sql = '''
-    SELECT name FROM companies WHERE name LIKE ?
+    SELECT name FROM companies WHERE name LIKE ? order by name asc
     '''
     cursor.execute(sql, ('%' + filter + '%',))
     results = cursor.fetchall()
@@ -18,9 +18,11 @@ def get_db_companies_detail(cursor, filter):
 
 def get_report_data(cursor, date_to, date_from):
     sql = '''
-    SELECT order_id, customer_id, order_create_date, amount, employee_id, amount_issued 
-    FROM orders 
+    SELECT o.order_id, o.customer_id, o.order_create_date, o.amount, o.employee_id, o.amount_issued, c.store
+    FROM orders o,
+    customers c 
     WHERE order_create_date > ? AND order_create_date < ?
+    and o.customer_id = c.customer_id
     '''
     cursor.execute(sql, (date_from, date_to))
     results = cursor.fetchall()
@@ -38,7 +40,7 @@ def get_user(cursor, password, username):
 
 def get_db_customers(cursor):
     sql = '''
-    SELECT customer_id, first_name, last_name, phone_number, is_flagged FROM customers
+    SELECT customer_id, first_name, last_name, phone_number, is_flagged, old_id FROM customers
     '''
     cursor.execute(sql)
     results = cursor.fetchall()
@@ -70,49 +72,71 @@ def get_company_list(cursor, date_from=None, date_to=None, text=None):
     results = cursor.fetchall()
     return results
 
-def get_order_list(cursor, date_from=None, date_to=None, text=None):
+def get_order_list(cursor, date_from=None, date_to=None, text=None, store=None):
     sql = '''
-    SELECT order_id, customer_id, order_create_date, date_check_issued, check_number, amount, amount_issued 
-    FROM orders
+    SELECT o.order_id, o.customer_id, o.order_create_date, o.date_check_issued, o.check_number, o.amount, o.amount_issued, c.store 
+    FROM orders o,
+    customers c
+    where o.customer_id = c.customer_id
     '''
+    conditions = []
+    params = []
 
     if text:
-        sql += 'WHERE order_id = ? OR customer_id = ? '
-        params = (text, text)
-    elif date_from and date_to:
-        sql += 'WHERE order_create_date <= ? AND order_create_date >= ? '
-        params = (date_from, date_to)
-    elif date_from:
-        sql += 'WHERE order_create_date <= ? '
-        params = (date_from,)
-    elif date_to:
-        sql += 'WHERE order_create_date >= ? '
-        params = (date_to,)
-    else:
-        params = ()
+        conditions.append("(o.order_id = ? OR o.customer_id = ?)")
+        params += [text, text]
+    if date_from and date_to:
+        conditions.append("o.order_create_date BETWEEN ? AND ?")
+        params += [date_from, date_to]
+    if store:
+        sql = '''
+            SELECT o.order_id, o.customer_id, o.order_create_date, o.date_check_issued, o.check_number, o.amount, o.amount_issued, c.store 
+            FROM orders o,
+            customers c
+            where o.customer_id = c.customer_id
+            and lower(c.store) = ?
 
-    sql += 'ORDER BY order_create_date DESC'
+        '''
+        params += [store]
+    elif date_from:
+        conditions.append("o.order_create_date >= ?")
+        params += [date_from]
+    elif date_to:
+        conditions.append("o.order_create_date <= ?")
+        params += [date_to]
+
+    if conditions:
+        sql += ' AND '.join(conditions)
+
+    sql += ' ORDER BY order_create_date DESC'
+    print(sql)
     cursor.execute(sql, params)
     results = cursor.fetchall()
     return results
 
-def get_customer_list(cursor, date_from=None, date_to=None, text=None):
+def get_customer_list(cursor, date_from=None, date_to=None, text=None, store=None):
     sql = '''
-    SELECT customer_id, first_name, last_name, phone_number, address, license_number, creation_date, last_checked_date 
+    SELECT customer_id, first_name, last_name, phone_number, address, license_number, creation_date, last_checked_date, store 
     FROM customers
     '''
     conditions = []
     params = []
 
     if text:
-        conditions.append("(first_name LIKE ? OR last_name LIKE ? OR license_number = ? OR phone_number = ? OR customer_id = ?)")
+        conditions.append(
+            "(first_name LIKE ? OR last_name LIKE ? OR license_number = ? OR phone_number = ? OR customer_id = ?)")
         params += ['%' + text + '%', '%' + text + '%', text, text, text]
+    if store:
+        conditions.append(
+            "(lower(store) = ?)")
+        params += [store]
     if date_from and date_to:
         conditions.append("creation_date <= ? AND creation_date >= ?")
         params += [date_from, date_to]
 
     if conditions:
         sql += 'WHERE ' + ' AND '.join(conditions)
+
 
     cursor.execute(sql, params)
     results = cursor.fetchall()
@@ -206,7 +230,7 @@ def get_order_detail(cursor, order_id):
 
 def get_customer_detail(cursor, customer_id):
     sql = '''
-    SELECT customer_id, first_name, last_name, phone_number, address, license_number, creation_date, last_checked_date, customer_uuid, is_flagged, notes 
+    SELECT customer_id, first_name, last_name, phone_number, address, license_number, creation_date, last_checked_date, customer_uuid, is_flagged, notes, store, old_id
     FROM customers 
     WHERE customer_id = ?
     '''

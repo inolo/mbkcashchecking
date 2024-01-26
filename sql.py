@@ -4,7 +4,6 @@ conn = sqlite3.connect('cashchecking.db')
 
 cur = conn.cursor()
 
-
 create_customers_table = '''
 CREATE TABLE CUSTOMERS 
 
@@ -22,14 +21,16 @@ CREATE TABLE CUSTOMERS
   customer_license_photo TEXT,
   is_flagged BOOLEAN DEFAULT 0,
   notes TEXT DEFAULT 'NO NOTES',
-  employee_id INTEGER
+  employee_id INTEGER,
+  store TEXT,
+  old_id INTEGER
   )
 '''
 
 create_order_table = '''
  CREATE TABLE ORDERS 
  (
-  
+
   order_id INTEGER PRIMARY KEY AUTOINCREMENT,
   order_uuid TEXT,
   customer_id INTEGER,
@@ -43,7 +44,8 @@ create_order_table = '''
   check_photo TEXT,
   employee_id INTEGER,
   amount_issued INTEGER,
-  company_id INTEGER
+  company_id INTEGER,
+  store TEXT
  )
 
 '''
@@ -74,15 +76,16 @@ CREATE TABLE COMPANIES
 
 '''
 
-
 cur.execute(create_order_table)
 cur.execute(create_customers_table)
 cur.execute(create_employees_table)
 cur.execute(create_companies_table)
-cur.execute( """insert into employees ( first_name, last_name, password, username, permission) values ( 'Kevin', 'Nguyen', 'Ilovesushi1!', 'kevin93nguyen', 'admin')""")
-cur.execute( """insert into employees ( first_name, last_name, password, username, permission) values ( 'ivy', 'wong', 'Ilovesushi1!', 'ivywong93', 'admin')""")
-cur.execute( """insert into employees ( first_name, last_name, password, username, permission) values ( 'hazel', 'nguyen', 'Ilovesushi1!', 'hazel22', 'manager')""")
+cur.execute(
+    """insert into employees ( first_name, last_name, password, username, permission) values ( 'Kevin', 'Nguyen', 'Ilovesushi1!', 'kevin93nguyen', 'admin')""")
+cur.execute(
+    """insert into employees ( first_name, last_name, password, username, permission) values ( 'ivy', 'wong', 'Ilovesushi1!', 'ivywong93', 'admin')""")
+cur.execute(
+    """insert into employees ( first_name, last_name, password, username, permission) values ( 'hazel', 'nguyen', 'Ilovesushi1!', 'hazel22', 'manager')""")
 conn.commit()
-
 
 # insert into employees ( first_name, last_name, password, username, permission) values ( 'Kevin', 'Nguyen', 'Ilovesushi1!', 'kevin93nguyen', 'admin')

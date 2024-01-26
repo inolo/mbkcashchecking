@@ -171,6 +171,7 @@
         <a href="/customers">Customers</a>
         <a href="/companies">Companies</a>
         <a href="/reports">Reports</a>
+        <a href="/admin">Admin</a>
     </div>
 
     <!-- Main Content -->
@@ -206,6 +207,10 @@
                 <p><strong>Is Flagged: </strong>NO</p>
             {% endif %}
             <!-- Add more details as needed -->
+            <p><strong>Store:</strong> {{ customer.store }}</p>
+            {% if customer.old_id %}
+            <p><strong>Conoco OLD ID:</strong> {{ customer.old_id }}</p>
+            {% endif %}
             <div class="customer-notes">
             <h3>Notes</h3>
             <textarea id="customerNotes" rows="4" style="width: 100%;">{{ customer.notes }}</textarea>

@@ -22,7 +22,9 @@ from db_sql import get_db_customers, get_order_list, get_customer_list, get_orde
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5UUh-uNiJMZ<{qWx00z:f!/to|aT0('
+# app.config['SERVER_NAME'] = '47.188.174.139:80'
 
+#17644 Is where the load stops, anything from Conoco will be marked with 'C' after. So if conoco id was 100 it will be 100C
 
 ########################################AUTH#################################################################
 
@@ -166,12 +168,15 @@ def home():
 @app.route('/orders', methods=['GET', 'POST'])
 @login_required
 def orders():
+    store = request.args.get('store', None, type=str)
+    if store == 'None':
+        store = None
     date_to = request.args.get('date_to', '', type=str)
     date_from = request.args.get('date_from', '', type=str)
     text = request.args.get('search_text', '', type=str)
     page = request.args.get('page', 1, type=int)
     conn, cursor = get_sqlite_connection()
-    results = get_order_list(cursor, date_to, date_from, text)
+    results = get_order_list(cursor, date_to, date_from, text, store)
     paginated_customers = results[(page - 1) * 100:page * 100]
     has_next = len(results[(page) * 100:(page + 1) * 100])
     has_prev = len(results[(page - 2) * 100:(page - 1) * 100])
@@ -187,6 +192,7 @@ def orders():
         order_detail['check_number'] = result[4]
         order_detail['amount'] = result[5]
         order_detail['amount_issued'] = result[6]
+        order_detail['store'] = result[7]
         all_orders.append(order_detail)
 
     return render_template('orders.html', orders_list=all_orders, has_next=has_next, current_page=page,
@@ -219,23 +225,26 @@ def companies():
                            has_prev=has_prev)
 
 
+
+
 @app.route('/customers', methods=['GET', 'POST'])
 @login_required
 def customers():
+    store = request.args.get('store', None, type=str)
+    if store == 'None':
+        store = None
     date_to = request.args.get('date_to', '', type=str)
     date_from = request.args.get('date_from', '', type=str)
     text = request.args.get('search_text', '', type=str)
     page = request.args.get('page', 1, type=int)
     conn, cursor = get_sqlite_connection()
-    results = get_customer_list(cursor, date_to, date_from, text)
+    results = get_customer_list(cursor, date_to, date_from, text, store)
     paginated_customers = results[(page - 1) * 100:page * 100]
     has_next = len(results[(page) * 100:(page + 1) * 100])
     has_prev = len(results[(page - 2) * 100:(page - 1) * 100])
     conn.close()
     all_customers = []
-
     for result in paginated_customers:
-        print(result)
         order_detail = {}
         order_detail['customer_id'] = result[0]
         order_detail['first_name'] = result[1]
@@ -245,9 +254,11 @@ def customers():
         order_detail['license_number'] = result[5]
         order_detail['account_creation'] = result[6]
         order_detail['last_checked'] = result[7]
+        order_detail['store'] = result[8]
         all_customers.append(order_detail)
     return render_template('customers.html', orders_list=all_customers, has_next=has_next, current_page=page,
                            has_prev=has_prev)
+
 
 
 @app.route('/company/<company_id>')
@@ -279,7 +290,6 @@ def customer_detail(customer_id):
         orders_list = get_order_list_by_customer(cursor, customer_id)
         result = result[0]
         conn.close()
-        # Dummy data for illustration
         customer = {
             'id': customer_id,
             'first_name': result[1],
@@ -291,7 +301,9 @@ def customer_detail(customer_id):
             'last_checked': result[7],
             'uuid': result[8],
             'is_flagged': result[9],
-            'notes': result[10]
+            'store': result[11],
+            'notes': result[10],
+            'old_id': result[12]
         }
         customer_orders = []
         for order in orders_list:
@@ -321,7 +333,9 @@ def customer_detail(customer_id):
         'last_checked': result[7],
         'uuid': result[8],
         'is_flagged': result[9],
-        'notes': result[10]
+        'store': result[11],
+        'notes': result[10],
+        'old_id': result[12]
     }
     customer_orders = []
     for order in orders_list:
@@ -387,20 +401,20 @@ def orders_list():
     pass
 
 
-@app.route('/get_customers')
+@app.route('/get_customers', methods=['GET','POST'])
 def get_customers():
     conn, cursor = get_sqlite_connection()
     results = get_db_customers(cursor)
+    # print(results)
     conn.close()
     customer_list = []
     for customer in results:
-        customer_string = f'{customer[0]}-{customer[1].upper()}-{customer[2].upper()}{"-FLAGGED" if customer[-1] == 1 else ""}'
+        old_id = '-' + str(customer[5]) + "C" if customer[5] else ""
+        customer_string = f'{customer[0]}{f"-{customer[1].upper()}" if customer[1] else ""}{f"-{customer[2].upper()}" if customer[2] else ""}{"-FLAGGED" if customer[4] == 1 else ""}{old_id}'
         customer_list.append(customer_string)
     page = request.args.get('page', 1, type=int)
     limit = request.args.get('limit', 20, type=int)
     query = request.args.get('query', '', type=str)
-    # Implement search and pagination logic
-    # For simplicity, this example just slices the customer list
     filtered_customers = [c for c in customer_list if
                           query.lower() in c.lower() or query.lower() in c.lower().replace('-', ' ')]
     paginated_customers = filtered_customers[(page - 1) * limit:page * limit]
@@ -426,18 +440,14 @@ def get_company_details():
     results = get_db_companies_detail(cursor, filter)
     conn.close()
     details = {'address':results[0], 'phone': results[1]}
-    print(details)
     return details
 
 @app.route('/save_notes', methods=['POST'])
 def save_notes():
     data = request.data.decode("utf-8")
     data = ast.literal_eval(data)
-    print(data)
     notes = data['notes']
     customer_id = data['customerId'].split(':')[-1].replace('}', '').replace('"', '').replace(' ', '')
-    print(notes)
-    print(customer_id)
     conn, cursor = get_sqlite_connection()
     sql = f''' update customers set notes = '{notes}' where customer_id = {customer_id}'''
     cursor.execute(sql)
@@ -448,9 +458,7 @@ def save_notes():
 
 @app.route('/flag_account', methods=['POST'])
 def flag_account():
-    print('hello')
     data = request.data.decode("utf-8")
-    print(data)
     id = data.split(':')[-1].replace('}', '').replace('"', '').replace(' ', '')
     conn, cursor = get_sqlite_connection()
     sql = f''' update customers set is_flagged = 1 where customer_id = {id}'''
@@ -503,6 +511,7 @@ def customer_submit():
 def add_new_user():
     conn, cursor = get_sqlite_connection()
     data = request.form
+    print(data)
     add_user(cursor, data)
     conn.commit()
     conn.close()
@@ -528,7 +537,8 @@ def report_data():
             'order_create_date': row[2],
             'amount': row[3],
             'employee_id': row[4],
-            'amount_issued': row[5]
+            'amount_issued': row[5],
+            'store': row[6]
         }
         all_orders.append(json_temp)
     admin = is_admin()
