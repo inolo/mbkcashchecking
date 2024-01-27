@@ -160,7 +160,7 @@ def webhooks():
         cmd1 = "/usr/bin/touch /home/ubuntu/touch.txt"
         returned_value = subprocess.check_output(cmd1, shell=True)
         logging.info(f"{returned_value}")
-        cmd = "/usr/bin/bash /home/ubuntu/flask_app/cashchecking/cicd.sh"
+        cmd = "/bin/bash /home/ubuntu/flask_app/cashchecking/cicd.sh"
         returned_value = subprocess.check_output(cmd, shell=True)
         logging.info(f"{returned_value}")
     except Exception as e:
