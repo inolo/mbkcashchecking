@@ -158,14 +158,11 @@ def webhooks():
     logging.info(f"I am here")
     try:
         cmd1 = "touch /home/ubuntu/touch.txt"
-
-        os.system(cmd1)
-        logging.info(f"{cmd1} done")
-        cmd = "bash /home/ubuntu/flask_app/cashchecking/cicd.sh"
-        os.system(cmd1)
-        logging.info(f"{cmd} done")
-        logging.info('TESTING NOW')
-        logging.info('SO BAD')
+        returned_value = os.system(cmd1)
+        logging.info(f"{returned_value}")
+        cmd = "bash /home/ubuntu/flask_app/cashchecking/cici.sh"
+        returned_value = subprocess.run(cmd, shell=True)
+        logging.info(f"{returned_value}")
     except Exception as e:
         logging.info(f"{e}")
 
