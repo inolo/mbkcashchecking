@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, Response, render_template, url_for, flash, redirect, session
+from flask import Flask, request, jsonify, Response, render_template, url_for, flash, redirect, session, send_from_directory
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 import json
 import hmac
@@ -64,6 +64,13 @@ def is_admin():
         return False
 
 
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'cashchecking_icon.png')
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     # if request.method == 'POST':
@@ -122,9 +129,7 @@ def logout():
 #########################################################################################################
 def save_image(request, url):
     try:
-        # customerNumber = request.form['customerNumber']
         image_data_url = request.form['imageDataUrl']
-        # checkNumber = request.form['checkNumber']
         uuid = request.form['uuid']
 
         with open(f'./static/images/{url}/{uuid}.png', 'wb') as file:
@@ -176,12 +181,14 @@ def orders():
     text = request.args.get('search_text', '', type=str)
     page = request.args.get('page', 1, type=int)
     conn, cursor = get_sqlite_connection()
-    results = get_order_list(cursor, date_to, date_from, text, store)
+    results = get_order_list(cursor, date_from, date_to, text, store)
     paginated_customers = results[(page - 1) * 100:page * 100]
     has_next = len(results[(page) * 100:(page + 1) * 100])
     has_prev = len(results[(page - 2) * 100:(page - 1) * 100])
     conn.close()
     all_orders = []
+    print("Date from:", date_from)
+    print("Date to:", date_to)
 
     for result in paginated_customers:
         order_detail = {}
@@ -196,7 +203,7 @@ def orders():
         all_orders.append(order_detail)
 
     return render_template('orders.html', orders_list=all_orders, has_next=has_next, current_page=page,
-                           has_prev=has_prev)
+                           has_prev=has_prev, store=store, search_text=text, date_from= date_from, date_to=date_to)
 
 @app.route('/companies', methods=['GET', 'POST'])
 @login_required
@@ -206,7 +213,7 @@ def companies():
     text = request.args.get('search_text', '', type=str)
     page = request.args.get('page', 1, type=int)
     conn, cursor = get_sqlite_connection()
-    results = get_company_list(cursor, date_to, date_from, text)
+    results = get_company_list(cursor, date_from, date_to, text)
     paginated_customers = results[(page - 1) * 100:page * 100]
     has_next = len(results[(page) * 100:(page + 1) * 100])
     has_prev = len(results[(page - 2) * 100:(page - 1) * 100])
@@ -222,7 +229,7 @@ def companies():
         company['creation_date'] = result[4]
         all_orders.append(company)
     return render_template('companies.html', orders_list=all_orders, has_next=has_next, current_page=page,
-                           has_prev=has_prev)
+                           has_prev=has_prev, text=text)
 
 
 
@@ -243,6 +250,8 @@ def customers():
     has_next = len(results[(page) * 100:(page + 1) * 100])
     has_prev = len(results[(page - 2) * 100:(page - 1) * 100])
     conn.close()
+
+    print(text)
     all_customers = []
     for result in paginated_customers:
         order_detail = {}
@@ -257,7 +266,7 @@ def customers():
         order_detail['store'] = result[8]
         all_customers.append(order_detail)
     return render_template('customers.html', orders_list=all_customers, has_next=has_next, current_page=page,
-                           has_prev=has_prev)
+                           has_prev=has_prev, search_text=text, store=store, date_from= date_from, date_to=date_to)
 
 
 
@@ -265,11 +274,8 @@ def customers():
 @login_required
 def company_detail(company_id):
     conn, cursor = get_sqlite_connection()
-    # Fetch order details based on order_id
-    # For example: order = Order.query.get(order_id)
     comp, order, customer = get_company_detail(cursor, company_id)
     conn.close()
-    # Dummy data for illustration
     comp = {
         'company_id': comp[0],
         'name': comp[1],
@@ -321,7 +327,6 @@ def customer_detail(customer_id):
     orders_list = get_order_list_by_customer(cursor, customer_id)
     result = result[0]
     conn.close()
-    # Dummy data for illustration
     customer = {
         'id': customer_id,
         'first_name': result[1],
@@ -349,12 +354,9 @@ def customer_detail(customer_id):
 @login_required
 def order_detail(order_id):
     conn, cursor = get_sqlite_connection()
-    # Fetch order details based on order_id
-    # For example: order = Order.query.get(order_id)
     result = get_order_detail(cursor, order_id)
     result = result[0]
     conn.close()
-    # Dummy data for illustration
     order = {
         'order_number': order_id,
         'customer_id': result[1],

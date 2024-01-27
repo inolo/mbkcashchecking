@@ -50,54 +50,50 @@ def get_company_list(cursor, date_from=None, date_to=None, text=None):
     sql = '''
     SELECT company_id, name, address, phone_number, creation_date
     FROM companies
+    where 1=1
     '''
+    params = []
+
 
     if text:
-        sql += 'WHERE company_id = ? or name like ? '''
-        params = (text, '%' + text + '%',)
-    elif date_from and date_to:
-        sql += 'WHERE creation_date <= ? AND creation_date >= ? '
-        params = (date_from, date_to)
+        sql += ' and company_id = ? or name like ? '''
+        params += [text, '%' + text + '%']
+    if date_from and date_to:
+        sql += ' and creation_date <= ? AND creation_date >= ? '
+        params += [date_from, date_to]
     elif date_from:
-        sql += 'WHERE creation_date <= ? '
-        params = (date_from,)
+        sql += ' and creation_date <= ? '
+        params += [date_from]
     elif date_to:
-        sql += 'WHERE creation_date >= ? '
-        params = (date_to,)
+        sql += 'and creation_date >= ? '
+        params += [date_to]
     else:
-        params = ()
+        params +=  []
 
     sql += ' ORDER BY name asc'
     cursor.execute(sql, params)
     results = cursor.fetchall()
     return results
 
+
 def get_order_list(cursor, date_from=None, date_to=None, text=None, store=None):
     sql = '''
     SELECT o.order_id, o.customer_id, o.order_create_date, o.date_check_issued, o.check_number, o.amount, o.amount_issued, c.store 
-    FROM orders o,
-    customers c
-    where o.customer_id = c.customer_id
+    FROM orders o
+    JOIN customers c ON o.customer_id = c.customer_id
     '''
-    conditions = []
+    conditions = ["1 = 1"]  # Ensures there's always a WHERE clause for AND to work
     params = []
 
     if text:
-        conditions.append("(o.order_id = ? OR o.customer_id = ?)")
-        params += [text, text]
+        conditions.append("(o.order_id like ? OR o.customer_id like ?)")
+        params += ['%' + text + '%', '%' + text + '%']
+    if store:
+        conditions.append("lower(c.store) = ?")
+        params += [store.lower()]
     if date_from and date_to:
         conditions.append("o.order_create_date BETWEEN ? AND ?")
         params += [date_from, date_to]
-    if store:
-        sql = '''
-            SELECT o.order_id, o.customer_id, o.order_create_date, o.date_check_issued, o.check_number, o.amount, o.amount_issued, c.store 
-            FROM orders o,
-            customers c
-            where o.customer_id = c.customer_id
-            and lower(c.store) = ?
-
-        '''
-        params += [store]
     elif date_from:
         conditions.append("o.order_create_date >= ?")
         params += [date_from]
@@ -105,10 +101,9 @@ def get_order_list(cursor, date_from=None, date_to=None, text=None, store=None):
         conditions.append("o.order_create_date <= ?")
         params += [date_to]
 
-    if conditions:
-        sql += ' AND '.join(conditions)
+    sql += ' WHERE ' + ' AND '.join(conditions)
+    sql += ' ORDER BY o.order_id asc'
 
-    sql += ' ORDER BY order_create_date DESC'
     print(sql)
     cursor.execute(sql, params)
     results = cursor.fetchall()

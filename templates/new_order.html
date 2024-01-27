@@ -361,6 +361,9 @@
     </tbody>
     </table>
         </div>
+    <h3>Notes</h3>
+    <textarea id="customerNotes" rows="4" style="width: 100%;"></textarea>
+    <button id="saveNotes" type="button" class="btn btn-primary">Save Notes</button>
     </div>
 <!--    <div class="modal" id="customerSearchModal">-->
 <!--        <div class="modal-dialog">-->
@@ -629,7 +632,7 @@ function selectCustomer(customerName) {
         document.getElementById('lastCheckedValue').textContent = data.last_checked;
         document.getElementById('cust_img').src = './static/images/customer_photo/' + data.uuid +'.png';
         document.getElementById('cust_license').src = './static/images/license_copy/' + data.uuid +'.png';
-
+        document.getElementById('customerNotes').value = data.notes;
     })
     .catch(error => {
         console.error('Error:', error);
@@ -805,6 +808,28 @@ function selectCompany(company) {
         console.error('Error:', error);
     });
 }
+
+let saveNotes = document.getElementById('saveNotes');
+
+        saveNotes.addEventListener('click', function () {
+            var notes = document.getElementById('customerNotes').value;
+            var customerId = document.getElementById('customerSearchField').value;
+        fetch('/save_notes', {
+                method: 'POST',
+                 body: JSON.stringify({ customerId: customerId, notes: notes }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Notes saved successfully.');
+                    window.alert("Sucessfully Saved Notes");
+<!--                    window.location.reload();-->
+                } else {
+                    console.error('Image upload failed.');
+                }
+
+
+        });
+     });
 
     </script>
 </body>
