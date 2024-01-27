@@ -1,3 +1,5 @@
+#!/bin/bash
+
 rm -rf /home/ubuntu/flask_app/cicd
 
 sudo mkdir -p /home/ubuntu/flask_app/cicd
