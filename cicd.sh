@@ -33,7 +33,9 @@ sudo mv cicd.sh /home/ubuntu/flask_app/cashchecking/cicd.sh
 
 sudo chmod 777 /home/ubuntu/flask_app/cashchecking/cicd.sh
 
-sudo systemctl restart cashchecking.service
+#sudo systemctl restart cashchecking.service
+
+sleep 5 && systemctl restart cashchecking.service
 
 #testing note 1128111 please work now??///111111112132111aaaaatestaatesttry thisaa13131
 
