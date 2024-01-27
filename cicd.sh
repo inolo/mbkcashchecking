@@ -4,11 +4,11 @@ sudo rm -rf /home/ubuntu/flask_app/cicd
 
 sudo mkdir -p /home/ubuntu/flask_app/cicd
 
-sudo cd /home/ubuntu/flask_app/cicd
+cd /home/ubuntu/flask_app/cicd
 
 sudo git clone https://github.com/inolo/mbkcashchecking.git
 
-sudo cd mbkcashchecking
+cd mbkcashchecking
 
 
 sudo rm -rf /home/ubuntu/flask_app/cashchecking/templates
