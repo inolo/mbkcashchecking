@@ -157,9 +157,9 @@ def save_image(request, url):
 def webhooks():
     logging.info(f"I am here")
     try:
-        cmd1 = "/usr/bin/touch /home/ubuntu/touch.txt"
-        returned_value = subprocess.check_output(cmd1, shell=True)
-        logging.info(f"{returned_value}")
+        # cmd1 = "/usr/bin/touch /home/ubuntu/touch.txt"
+        # returned_value = subprocess.check_output(cmd1, shell=True)
+        # logging.info(f"{returned_value}")
         # cmd2 = "/usr/bin/python3 /home/ubuntu/flask_app/cashchecking/pythontest.py"
         # returned_value = subprocess.check_output(cmd2, shell=True)
         # logging.info(f"{returned_value}")
