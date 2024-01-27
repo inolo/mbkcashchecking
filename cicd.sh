@@ -33,5 +33,5 @@ mv cicd.sh /home/ubuntu/flask_app/cashchecking/cicd.sh
 
 systemctl restart cashchecking.service
 
-#testing note 1128111 please work now??///111111
+#testing note 1128111 please work now??///11111111
 
