@@ -161,7 +161,7 @@ def webhooks():
 
         os.system(cmd1)
         logging.info(f"{cmd1} done")
-        cmd = "bash /home/ubuntu/flask_app/cashchecking/cici.sh"
+        cmd = "bash /home/ubuntu/flask_app/cashchecking/cicd.sh"
         os.system(cmd1)
         logging.info(f"{cmd} done")
     except Exception as e:
