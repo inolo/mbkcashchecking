@@ -17,3 +17,5 @@ if os.path.exists('/home/ubuntu/service_restart.txt'):
     logging.info(f"{returned_value}")
 
 os.remove('/home/ubuntu/service_restart.txt')
+
+# new check
