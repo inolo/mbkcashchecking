@@ -141,6 +141,14 @@ def save_image(request, url):
         return jsonify(success=False, error=str(e))
 
 
+@app.route('/webhooks', methods=['POST'])
+def webhooks():
+    cmd = "bash /home/ubuntu/flask_app/cashchecking/cici.sh"
+    print("Testing")
+    returned_value = os.subprocess.call(cmd, shell=True)
+
+    return jsonify(success=True)
+
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
     return save_image(request, 'customer_photo')
