@@ -8,16 +8,16 @@ cd /home/ubuntu/flask_app/cicd
 #
 git clone https://github.com/inolo/mbkcashchecking.git
 #
-#cd mbkcashchecking
+cd mbkcashchecking
 #
 #
-#sudo rm -rf /home/ubuntu/flask_app/cashchecking/templates
+sudo rm -rf /home/ubuntu/flask_app/cashchecking/templates
 #
-#sudo mv templates /home/ubuntu/flask_app/cashchecking/templates
+sudo mv templates /home/ubuntu/flask_app/cashchecking/templates
 #
-#sudo rm /home/ubuntu/flask_app/cashchecking/cashchecking.py
+sudo rm /home/ubuntu/flask_app/cashchecking/cashchecking.py
 #
-#sudo mv cashchecking.py /home/ubuntu/flask_app/cashchecking/cashchecking.py
+sudo mv cashchecking.py /home/ubuntu/flask_app/cashchecking/cashchecking.py
 #
 #sudo rm /home/ubuntu/flask_app/cashchecking/db_sql.py
 #
