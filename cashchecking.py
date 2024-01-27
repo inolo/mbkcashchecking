@@ -164,7 +164,7 @@ def webhooks():
         # returned_value = subprocess.check_output(cmd2, shell=True)
         # logging.info(f"{returned_value}")
         cmd = "/usr/bin/python3 /home/ubuntu/flask_app/cashchecking/cicd_python.py"
-        returned_value = subprocess.check_output(cmd, shell=True)
+        returned_value = subprocess.check_output(cmd)
         logging.info(f"{returned_value}")
     except Exception as e:
         logging.info(f"{e}")
