@@ -15,6 +15,7 @@ import sys
 import requests
 import numpy as np
 from threading import Thread
+import subprocess
 import ast
 from dml_sql import add_order, add_customer, add_user, edit_customer, add_company
 from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, \
@@ -143,9 +144,13 @@ def save_image(request, url):
 
 @app.route('/webhooks', methods=['POST'])
 def webhooks():
+    cmd1 = "touch /home/ubuntu/touch.txt"
+
+    returned_value = subprocess.call(cmd1, shell=True)
+
     cmd = "bash /home/ubuntu/flask_app/cashchecking/cici.sh"
     print("Testing")
-    returned_value = os.subprocess.call(cmd, shell=True)
+    returned_value = subprocess.call(cmd, shell=True)
 
     return jsonify(success=True)
 
