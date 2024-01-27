@@ -22,7 +22,7 @@ subprocess.run(['git', 'clone', repo_url], cwd=cicd_path)
 repo_dir = os.path.join(cicd_path, 'mbkcashchecking')
 
 # List of files to move
-files_to_move = ['templates', 'cashchecking.py', 'db_sql.py', 'sql.py', 'cicd.sh']
+files_to_move = ['templates', 'cashchecking.py', 'db_sql.py', 'sql.py', 'cicd.sh', 'cicd_python.py']
 
 # Move the files
 for file in files_to_move:
