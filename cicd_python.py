@@ -18,4 +18,4 @@ if os.path.exists('/home/ubuntu/service_restart.txt'):
 
 os.remove('/home/ubuntu/service_restart.txt')
 
-# new check
+# new check check pls
