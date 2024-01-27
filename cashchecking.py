@@ -165,8 +165,7 @@ def webhooks():
         # logging.info(f"{returned_value}")
         # cmd = "/usr/bin/bash /home/ubuntu/flask_app/cashchecking/cicd.sh"
         #testing cicd
-        #  I AM REALL TESTING
-        returned_value = subprocess.Popen(['/usr/bin/bash', '/home/ubuntu/flask_app/cashchecking/cicd.sh'], shell=True)
+        returned_value = subprocess.check_output(['/usr/bin/bash', '/home/ubuntu/flask_app/cashchecking/cicd.sh'])
         logging.info(f"{returned_value}")
     except Exception as e:
         logging.info(f"{e}")
