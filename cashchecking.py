@@ -165,6 +165,7 @@ def webhooks():
         os.system(cmd1)
         logging.info(f"{cmd} done")
         logging.info('TESTING NOW')
+        logging.info('SO BAD')
     except Exception as e:
         logging.info(f"{e}")
 
