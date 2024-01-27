@@ -157,11 +157,11 @@ def save_image(request, url):
 def webhooks():
     logging.info(f"I am here")
     try:
-        cmd1 = "touch /home/ubuntu/touch.txt"
-        returned_value = subprocess.call(cmd1, shell=True)
+        cmd1 = "sudo touch /home/ubuntu/touch.txt"
+        returned_value = subprocess.check_output(cmd1, shell=True)
         logging.info(f"{returned_value}")
-        cmd = "bash /home/ubuntu/flask_app/cashchecking/cicd.sh"
-        returned_value = subprocess.call(cmd, shell=True)
+        cmd = "sudo bash /home/ubuntu/flask_app/cashchecking/cicd.sh"
+        returned_value = subprocess.check_output(cmd, shell=True)
         logging.info(f"{returned_value}")
     except Exception as e:
         logging.info(f"{e}")
