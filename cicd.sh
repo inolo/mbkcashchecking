@@ -31,7 +31,7 @@ rm /home/ubuntu/flask_app/cashchecking/cicd.sh
 
 mv cicd.sh /home/ubuntu/flask_app/cashchecking/cicd.sh
 
-chomod 777 /home/ubuntu/flask_app/cashchecking/cicd.sh
+chmod 777 /home/ubuntu/flask_app/cashchecking/cicd.sh
 
 systemctl restart cashchecking.service
 
