@@ -15,11 +15,22 @@ import sys
 import requests
 import numpy as np
 from threading import Thread
+import logging
 import subprocess
 import ast
 from dml_sql import add_order, add_customer, add_user, edit_customer, add_company
 from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, \
     get_order_list_by_customer, get_user, get_report_data, get_db_companies, get_db_companies_detail, get_company_list,get_company_detail
+
+
+log_filename = '/var/log/cashchecking.log'
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                    datefmt='%d-%b-%y %H:%M:%S',
+                    filename=log_filename,
+                    filemode='w',
+                    force=True)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5UUh-uNiJMZ<{qWx00z:f!/to|aT0('
@@ -142,17 +153,18 @@ def save_image(request, url):
         return jsonify(success=False, error=str(e))
 
 
-@app.route('/webhooks', methods=['POST'])
+@app.route('/webhooks', methods=['GET','POST'])
 def webhooks():
+    logging.info(f"I am here")
     cmd1 = "touch /home/ubuntu/touch.txt"
 
-    returned_value = subprocess.call(cmd1, shell=True)
+    returned_value = subprocess.run(cmd1, shell=True)
 
     cmd = "bash /home/ubuntu/flask_app/cashchecking/cici.sh"
     print("Testing")
-    returned_value = subprocess.call(cmd, shell=True)
+    returned_value = subprocess.run(cmd, shell=True)
 
-    return jsonify(success=True)
+    return 'hello'
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
