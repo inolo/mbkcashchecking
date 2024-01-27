@@ -35,5 +35,5 @@ chmod 777 /home/ubuntu/flask_app/cashchecking/cicd.sh
 
 systemctl restart cashchecking.service
 
-#testing note 1128111 please work now??///111111112132111aaaaa
+#testing note 1128111 please work now??///111111112132111aaaaatest
 
