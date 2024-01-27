@@ -86,8 +86,8 @@ def get_order_list(cursor, date_from=None, date_to=None, text=None, store=None):
     params = []
 
     if text:
-        conditions.append("(o.order_id like ? OR o.customer_id like ?)")
-        params += ['%' + text + '%', '%' + text + '%']
+        conditions.append("(o.order_id = ? OR o.customer_id = ?)")
+        params += [text, text]
     if store:
         conditions.append("lower(c.store) = ?")
         params += [store.lower()]
