@@ -229,7 +229,7 @@ def companies():
         company['creation_date'] = result[4]
         all_orders.append(company)
     return render_template('companies.html', orders_list=all_orders, has_next=has_next, current_page=page,
-                           has_prev=has_prev, text=text)
+                           has_prev=has_prev, search_text=text, date_from=date_from, date_to=date_to)
 
 
 

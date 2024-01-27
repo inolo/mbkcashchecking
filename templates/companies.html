@@ -135,19 +135,19 @@
     <!-- Main Content -->
  <div class="main-content" id="mainContent">
         <div class="search-bar">
-            <form action="/companies" method="get">
+            <form action="{{ url_for('companies', search_text=search_text, date_from=date_from, date_to=date_to}}" method="get">
                 <div class="form-row align-items-end">
                     <div class="col">
                         <label for="searchText">Search Text:</label>
-                        <input type="text" class="form-control" id="searchText" name="search_text" placeholder="Enter search text">
+                        <input type="text" class="form-control" id="searchText" name="search_text" value={{search_text}}>
                     </div>
                     <div class="col">
                         <label for="dateFrom">Date From:</label>
-                        <input type="date" class="form-control" id="dateFrom" name="date_from" placeholder="Date From">
+                        <input type="date" class="form-control" id="dateFrom" name="date_from"  value={{date_from}}>
                     </div>
                     <div class="col">
                         <label for="dateTo">Date To:</label>
-                        <input type="date" class="form-control" id="dateTo" name="date_to" placeholder="Date To">
+                        <input type="date" class="form-control" id="dateTo" name="date_to" value ={{date_to}}>
                     </div>
                     <div class="col-auto">
                         <button type="submit" class="btn btn-primary">Search</button>
