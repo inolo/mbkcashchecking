@@ -102,7 +102,7 @@ def get_order_list(cursor, date_from=None, date_to=None, text=None, store=None):
         params += [date_to]
 
     sql += ' WHERE ' + ' AND '.join(conditions)
-    sql += ' ORDER BY o.order_id asc'
+    sql += ' ORDER BY o.order_create_date desc'
 
     print(sql)
     cursor.execute(sql, params)
