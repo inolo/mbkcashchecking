@@ -56,8 +56,8 @@ def get_company_list(cursor, date_from=None, date_to=None, text=None):
 
 
     if text:
-        sql += ' and company_id = ? or name like ? '''
-        params += [text, '%' + text + '%']
+        sql += " and company_id = ? or name like ? or address like ?  or REPLACE(phone_number, '-', '') like ? "
+        params += [text, '%' + text + '%', '%' + text + '%', '%' + text + '%']
     if date_from and date_to:
         sql += ' and creation_date <= ? AND creation_date >= ? '
         params += [date_from, date_to]
