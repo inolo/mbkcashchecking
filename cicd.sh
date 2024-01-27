@@ -33,7 +33,10 @@ sudo mv cicd.sh /home/ubuntu/flask_app/cashchecking/cicd.sh
 
 sudo chmod 777 /home/ubuntu/flask_app/cashchecking/cicd.sh
 
-#sudo systemctl restart cashchecking.service
+sudo rm /home/ubuntu/flask_app/cashchecking/cicd_python.py
+
+sudo mv cicd_python.py /home/ubuntu/flask_app/cashchecking/cicd_python.py
+
 
 sudo touch /home/ubuntu/service_restart.txt
 
