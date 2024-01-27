@@ -160,6 +160,9 @@ def webhooks():
         cmd1 = "/usr/bin/touch /home/ubuntu/touch.txt"
         returned_value = subprocess.check_output(cmd1, shell=True)
         logging.info(f"{returned_value}")
+        cmd2 = "/usr/bin/python3 /home/ubuntu/flask_app/cashchecking/pythontest.py"
+        returned_value = subprocess.check_output(cmd2, shell=True)
+        logging.info(f"{returned_value}")
         cmd = "/usr/bin/bash /home/ubuntu/flask_app/cashchecking/cicd.sh"
         returned_value = subprocess.check_output(cmd)
         logging.info(f"{returned_value}")
