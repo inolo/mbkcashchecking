@@ -6,7 +6,7 @@ sudo mkdir -p /home/ubuntu/flask_app/cicd
 
 cd /home/ubuntu/flask_app/cicd
 #
-#sudo git clone https://github.com/inolo/mbkcashchecking.git
+git clone https://github.com/inolo/mbkcashchecking.git
 #
 #cd mbkcashchecking
 #
