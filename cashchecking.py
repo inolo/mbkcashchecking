@@ -23,14 +23,7 @@ from db_sql import get_db_customers, get_order_list, get_customer_list, get_orde
     get_order_list_by_customer, get_user, get_report_data, get_db_companies, get_db_companies_detail, get_company_list,get_company_detail
 
 
-log_filename = '/var/log/cashchecking.log'
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                    datefmt='%d-%b-%y %H:%M:%S',
-                    filename=log_filename,
-                    filemode='w',
-                    force=True)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '5UUh-uNiJMZ<{qWx00z:f!/to|aT0('
@@ -155,6 +148,14 @@ def save_image(request, url):
 
 @app.route('/webhooks', methods=['GET','POST'])
 def webhooks():
+    log_filename = '/var/log/cashchecking.log'
+
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                        datefmt='%d-%b-%y %H:%M:%S',
+                        filename=log_filename,
+                        filemode='w',
+                        force=True)
     logging.info(f"I am here")
     try:
         # cmd1 = "/usr/bin/touch /home/ubuntu/touch.txt"

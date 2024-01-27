@@ -1,65 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cash Checking App</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<!--    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>-->
-<!--     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>-->
-    <style>
-        /* Custom styles for sidebar */
-        .sidebar {
-            height: calc(100vh - 56px);
-            width: 200px;
-            position: fixed;
-            z-index: 1;
-            top: 56px;
-            left: -200px; /* Initially hidden */
-            background-color: #f8f9fa;
-            overflow-x: hidden;
-            padding-top: 20px;
-            transition: 0.5s; /* Smooth transition */
-        }
-
-        .sidebar a {
-            padding: 6px 8px 6px 16px;
-            text-decoration: none;
-            font-size: 16px;
-            color: #333;
-            display: block;
-        }
-
-        .sidebar a:hover {
-            color: #007bff;
-        }
-
-        /* Style for the content */
-        .main-content {
-            transition: margin-left .5s; /* Smooth transition */
-            padding: 20px;
-        }
-
-        /* When the sidebar is shown, add 200px margin */
-        .main-content.shift-right {
-            margin-left: 200px;
-        }
-
-        /* Navigation Bar */
-        .navbar {
-            z-index: 2; /* Ensure navbar is above sidebar */
-        }
-        body {
-            cursor: default;
-        }
-
-        a, button {
-            cursor: pointer;
-        }
-        .customer-details, .orders-section {
+{% extends "layout.html" %}
+{% block css %}
+ .customer-details, .orders-section {
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
@@ -138,44 +79,14 @@
     /* Additional styling for customer details */
 }
 
-    </style>
-</head>
-<body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <span style="color: white; cursor: pointer" class="navbar-brand" onclick="toggleSidebar()">
-            &#9776; <!-- Unicode for menu icon -->
-        </span>
-        <a class="navbar-brand" href="/">CashCheck</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-               {% if current_user.is_active %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Log Out</a>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/login">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/support">Support</a>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
-    </nav>
 
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <a href="/orders">Orders</a>
-        <a href="/customers">Customers</a>
-        <a href="/companies">Companies</a>
-        <a href="/reports">Reports</a>
-        <a href="/admin">Admin</a>
-    </div>
+{% endblock %}
 
-    <!-- Main Content -->
-   <div class="main-content" id="mainContent">
+//////////////////////////////////////////////////////////////////////////
+
+
+{% block main %}
+<div class="main-content" id="mainContent">
 
        <div class="customer-profile">
         <!-- Container for Images -->
@@ -263,19 +174,12 @@
             </tbody>
         </table>
     </div>
-    <script>
-        function toggleSidebar() {
-            var sidebar = document.getElementById("sidebar");
-            var mainContent = document.getElementById("mainContent");
-            if (sidebar.style.left === "-200px") {
-                sidebar.style.left = "0";
-                mainContent.classList.add("shift-right");
-            } else {
-                sidebar.style.left = "-200px";
-                mainContent.classList.remove("shift-right");
-            }
-        }
-        let saveNotes = document.getElementById('saveNotes');
+{% endblock %}
+
+///////////////////////////////////////////////////////////////////////////
+
+{% block js %}
+ let saveNotes = document.getElementById('saveNotes');
 
         saveNotes.addEventListener('click', function () {
             var notes = document.getElementById('customerNotes').value;
@@ -337,8 +241,4 @@
 
         });
      });
-
-
-    </script>
-</body>
-</html>
+{% endblock %}

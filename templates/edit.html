@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block main %}
+     <div class="main-content" id="mainContent">
+         {% if submit_order %}
+            <h2>Order Submitted Successfully!</h2>
+        {% endif %}
+        {% if submit_customer %}
+            <h2>Customer Added Successfully!</h2>
+        {% endif %}
+        <h1>Welcome to the Cash Checking App</h1>
+        {% if not current_user.is_authenticated %}
+        <a href="/login" class="btn btn-primary">Login</a>
+        {% else %}
+        <a href="/new_order" class="btn btn-primary">New Order</a>
+        <a href="/new_customer" class="btn btn-primary">New Customer</a>
+        {% endif %}
+        <!-- Your main content goes here -->
+            <div class="reminders-section" style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <h3>Reminders for Employees</h3>
+        <ul>
+            <li>Always ensure to get a fingerprint for each transaction.</li>
+            <li>Take clear pictures of the check before processing.</li>
+            <!-- Add more reminders as needed -->
+        </ul>
+                </div>
+             <div class="check-image">
+                <img src="{{ url_for('static',  filename='cashchecking_logo.png' ) }}" alt="Check Image">
+            </div>
+    </div>
+{% endblock %}
