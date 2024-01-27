@@ -156,13 +156,16 @@ def save_image(request, url):
 @app.route('/webhooks', methods=['GET','POST'])
 def webhooks():
     logging.info(f"I am here")
-    cmd1 = "touch /home/ubuntu/touch.txt"
+    try:
+        cmd1 = "touch /home/ubuntu/touch.txt"
 
-    returned_value = subprocess.run(cmd1, shell=True)
+        returned_value = subprocess.run(cmd1, shell=True)
 
-    cmd = "bash /home/ubuntu/flask_app/cashchecking/cici.sh"
-    print("Testing")
-    returned_value = subprocess.run(cmd, shell=True)
+        cmd = "bash /home/ubuntu/flask_app/cashchecking/cici.sh"
+        print("Testing")
+        returned_value = subprocess.run(cmd, shell=True)
+    except Exception as e:
+        logging.info(f"{e}")
 
     return 'hello'
 
