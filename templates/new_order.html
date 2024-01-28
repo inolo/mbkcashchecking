@@ -176,6 +176,18 @@
     top: 150px; /* Adjust this value based on the size of the buttons */
 }
 
+<!--input[type="date"]::-webkit-calendar-picker-indicator {-->
+<!--    background: transparent;-->
+<!--    bottom: 0;-->
+<!--    color: transparent;-->
+<!--    cursor: pointer;-->
+<!--    height: auto;-->
+<!--    left: 0;-->
+<!--    position: absolute;-->
+<!--    right: 0;-->
+<!--    top: 0;-->
+<!--    width: auto;-->
+<!--}-->
 
 {% endblock %}
 
@@ -245,7 +257,7 @@
             </div>
             <div class="form-group">
                 <label for="dateIssued">Date Issued:</label>
-                <input type="date" class="form-control" id="dateIssued" name="dateIssued" required>
+                <input type="date" class="form-control" id="dateIssued" name="dateIssued" onfocus="this.showPicker()" required>
             </div>
                          <div class="form-group">
                 <label for="uuid"></label>

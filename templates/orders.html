@@ -53,11 +53,11 @@
                     </div>
                     <div class="col">
                         <label for="dateFrom">Date From:</label>
-                        <input type="date" class="form-control" id="dateFrom" name="date_from"  value={{date_from}}>
+                        <input type="date" class="form-control" id="dateFrom" name="date_from"  onfocus="this.showPicker()" value={{date_from}}>
                     </div>
                     <div class="col">
                         <label for="dateTo">Date To:</label>
-                        <input type="date" class="form-control" id="dateTo" name="date_to" value ={{date_to}}>
+                        <input type="date" class="form-control" id="dateTo" name="date_to" onfocus="this.showPicker()"  value ={{date_to}}>
                     </div>
                     <div class="col-auto">
                         <button type="submit" class="btn btn-primary">Search</button>
