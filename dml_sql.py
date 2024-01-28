@@ -1,3 +1,69 @@
+
+def update_order(cursor, data):
+    order_number = data.get('orderNumber')
+    customer_id = data.get('customerId')
+    order_creation_date = data.get('orderCreationDate')
+    date_check_issued = data.get('dateCheckIssued')
+    check_number = data.get('checkNumber')
+    amount = data.get('amount')
+    amount_issued = data.get('amountIssued')
+
+    sql = '''   UPDATE
+    orders
+    SET
+    order_create_date = ?,
+    date_check_issued = ?,
+    check_number = ?,
+    amount = ?,
+    amount_issued =?
+    WHERE
+    order_id = ?; '''
+
+    cursor.execute(sql, (order_creation_date, date_check_issued, check_number, amount, amount_issued, order_number))
+
+def update_customer(cursor,data):
+    customer_id = data.get('customerId')
+    first_name = data.get('customerFirstName')
+    last_name = data.get('customerLastName')
+    phone_number = data.get('customerPhoneNumber')
+    address = data.get('customerAddress')
+    license_number = data.get('customerLicenseNumber')
+
+    sql_query = """
+        UPDATE customers
+        SET
+            first_name = ?, 
+            last_name = ?, 
+            phone_number = ?, 
+            address = ?, 
+            license_number = ?
+        WHERE
+            customer_id = ?;
+    """
+
+    # Execute the query with the values
+    cursor.execute(sql_query, (first_name, last_name, phone_number, address, license_number, customer_id))
+
+
+def update_company(cursor, data):
+    company_id = data.get('companyId')
+    company_name = data.get('companyName')
+    company_address = data.get('companyAddress')
+    company_phone_number = data.get('companyPhoneNumber')
+
+    sql_query = """
+    UPDATE companies
+    SET
+        name = ?, 
+        address = ?, 
+        phone_number = ?
+    WHERE
+        company_id = ?;
+    """
+
+    cursor.execute(sql_query, (company_name, company_address, company_phone_number, company_id))
+
+
 def add_user(cursor, data):
     first_name = data['firstName']
     last_name = data['lastName']

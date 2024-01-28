@@ -18,7 +18,7 @@ from threading import Thread
 import logging
 import subprocess
 import ast
-from dml_sql import add_order, add_customer, add_user, edit_customer, add_company
+from dml_sql import add_order, add_customer, add_user, edit_customer, add_company, update_order, update_customer, update_company
 from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, \
     get_order_list_by_customer, get_user, get_report_data, get_db_companies, get_db_companies_detail, get_company_list,get_company_detail
 
@@ -317,6 +317,38 @@ def company_detail(company_id):
     }
 
     return render_template('company_detail.html', order=order, company=comp, customer=customer)
+
+
+@app.route('/edit/order/', methods=['POST'])
+@login_required
+def edit_order():
+    conn, cursor = get_sqlite_connection()
+    data = request.json
+    update_order(cursor, data)
+    conn.commit()
+    conn.close()
+    return 'success'
+
+@app.route('/edit/customer/',methods=['POST'])
+@login_required
+def edit_customer():
+    conn, cursor = get_sqlite_connection()
+    data = request.json
+    print(data)
+    update_customer(cursor, data)
+    conn.commit()
+    conn.close()
+    return 'success'
+
+@app.route('/edit/company/', methods=['POST'])
+@login_required
+def edit_company():
+    conn, cursor = get_sqlite_connection()
+    data = request.json
+    update_company(cursor, data)
+    conn.commit()
+    conn.close()
+    return 'success'
 
 @app.route('/customer/<customer_id>', methods=['GET', 'POST'])
 @login_required

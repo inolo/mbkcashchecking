@@ -43,132 +43,223 @@
             <p><strong>Amount:</strong> ${{ order.amount }}</p>
             <p><strong>Amount Issued:</strong>${{ order.amount_issued }}</p>
             <!-- Add more order details as needed -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editOrderModal">
+                Edit Order
+            </button>
         </div>
+
              <div class="check-image">
                 <img src="{{ url_for('static',  filename='images/check_images/' + order.uuid  +'.png' ) }}" alt="Check Image">
             </div>
     </div>
          </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="editOrderModal" tabindex="-1" role="dialog" aria-labelledby="editOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editOrderModalLabel">Edit Order</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form fields go here -->
+                <form id="editOrderForm">
+                    <div class="form-group">
+                        <label for="orderNumber">Order Number:</label>
+                        <input type="text" class="form-control" id="orderNumber" name="orderNumber" readonly value="{{ order.order_number }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerId">Customer ID:</label>
+                        <input type="text" class="form-control" id="customerId" name="customerId" readonly value="{{ order.customer_id }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="orderCreationDate">Order Creation Date:</label>
+                        <input type="date" class="form-control" id="orderCreationDate" name="orderCreationDate" value="{{ order.order_create_date }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="dateCheckIssued">Date Check Issued:</label>
+                        <input type="date" class="form-control" id="dateCheckIssued" name="dateCheckIssued" value="{{ order.date_check_issued }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="checkNumber">Check Number:</label>
+                        <input type="text" class="form-control" id="checkNumber" name="checkNumber" value="{{ order.check_number }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount:</label>
+                        <input type="number" class="form-control" id="amount" name="amount" value="{{ order.amount }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="amountIssued">Amount Issued:</label>
+                        <input type="number" class="form-control" id="amountIssued" name="amountIssued" value="{{ order.amount_issued }}">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditOrderForm()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 ///////////////////////////////////////////////////////////////////////////
 
 {% block js %}
+    function submitEditOrderForm() {
+        // Prevent the default form submission
+        event.preventDefault();
+        var modal_order = document.getElementById("editOrderModal");
+        // Gather your form data
+        var formData = {
+            'orderNumber': $('#orderNumber').val(),
+            'customerId': $('#customerId').val(),
+            'orderCreationDate': $('#orderCreationDate').val(),
+            'dateCheckIssued': $('#dateCheckIssued').val(),
+            'checkNumber': $('#checkNumber').val(),
+            'amount': $('#amount').val(),
+            'amountIssued': $('#amountIssued').val()
+        };
 
+        // Send the form data using AJAX
+        $.ajax({
+            type: 'POST',
+            url: '/edit/order/', // Replace with the URL of your Flask route
+            data: JSON.stringify(formData),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(response) {
+                // Handle success (e.g., close the modal, show a success message, etc.)
+                //$('#editOrderModal').modal('hide');
+                // You might want to reload the page or refresh parts of it
+                alert('Order updated successfully');
+                    window.location.reload();
+            },
+            error: function(error) {
+                // Handle errors
+                console.log(error);
+                alert('An error occurred');
+            }
+        });
+    }
 {% endblock %}
 
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cash Checking App</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <style>
-        /* Custom styles for sidebar */
-        .sidebar {
-            height: calc(100vh - 56px);
-            width: 200px;
-            position: fixed;
-            z-index: 1;
-            top: 56px;
-            left: -200px; /* Initially hidden */
-            background-color: #f8f9fa;
-            overflow-x: hidden;
-            padding-top: 20px;
-            transition: 0.5s; /* Smooth transition */
-        }
+<!--    <!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta http-equiv="X-UA-Compatible" content="IE=edge">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Cash Checking App</title>-->
+<!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">-->
+<!--    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>-->
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>-->
+<!--    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>-->
+<!--    <style>-->
+<!--        /* Custom styles for sidebar */-->
+<!--        .sidebar {-->
+<!--            height: calc(100vh - 56px);-->
+<!--            width: 200px;-->
+<!--            position: fixed;-->
+<!--            z-index: 1;-->
+<!--            top: 56px;-->
+<!--            left: -200px; /* Initially hidden */-->
+<!--            background-color: #f8f9fa;-->
+<!--            overflow-x: hidden;-->
+<!--            padding-top: 20px;-->
+<!--            transition: 0.5s; /* Smooth transition */-->
+<!--        }-->
 
-        .sidebar a {
-            padding: 6px 8px 6px 16px;
-            text-decoration: none;
-            font-size: 16px;
-            color: #333;
-            display: block;
-        }
+<!--        .sidebar a {-->
+<!--            padding: 6px 8px 6px 16px;-->
+<!--            text-decoration: none;-->
+<!--            font-size: 16px;-->
+<!--            color: #333;-->
+<!--            display: block;-->
+<!--        }-->
 
-        .sidebar a:hover {
-            color: #007bff;
-        }
+<!--        .sidebar a:hover {-->
+<!--            color: #007bff;-->
+<!--        }-->
 
-        /* Style for the content */
-        .main-content {
-            transition: margin-left .5s; /* Smooth transition */
-            padding: 20px;
-        }
+<!--        /* Style for the content */-->
+<!--        .main-content {-->
+<!--            transition: margin-left .5s; /* Smooth transition */-->
+<!--            padding: 20px;-->
+<!--        }-->
 
-        /* When the sidebar is shown, add 200px margin */
-        .main-content.shift-right {
-            margin-left: 200px;
-        }
+<!--        /* When the sidebar is shown, add 200px margin */-->
+<!--        .main-content.shift-right {-->
+<!--            margin-left: 200px;-->
+<!--        }-->
 
-        /* Navigation Bar */
-        .navbar {
-            z-index: 2; /* Ensure navbar is above sidebar */
-        }
-        body {
-            cursor: default;
-        }
+<!--        /* Navigation Bar */-->
+<!--        .navbar {-->
+<!--            z-index: 2; /* Ensure navbar is above sidebar */-->
+<!--        }-->
+<!--        body {-->
+<!--            cursor: default;-->
+<!--        }-->
 
-        a, button {
-            cursor: pointer;
-        }
+<!--        a, button {-->
+<!--            cursor: pointer;-->
+<!--        }-->
 
-    </style>
-</head>
-<body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <span style="color: white; cursor: pointer" class="navbar-brand" onclick="toggleSidebar()">
-            &#9776; <!-- Unicode for menu icon -->
-        </span>
-        <a class="navbar-brand" href="/">CashCheck</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                {% if current_user.is_active %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Log Out</a>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/login">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/support">Support</a>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
-    </nav>
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--    &lt;!&ndash; Navigation Bar &ndash;&gt;-->
+<!--    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">-->
+<!--        <span style="color: white; cursor: pointer" class="navbar-brand" onclick="toggleSidebar()">-->
+<!--            &#9776; &lt;!&ndash; Unicode for menu icon &ndash;&gt;-->
+<!--        </span>-->
+<!--        <a class="navbar-brand" href="/">CashCheck</a>-->
+<!--        <div class="collapse navbar-collapse" id="navbarNav">-->
+<!--            <ul class="navbar-nav ml-auto">-->
+<!--                {% if current_user.is_active %}-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/logout">Log Out</a>-->
+<!--                </li>-->
+<!--                {% else %}-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/login">Login</a>-->
+<!--                </li>-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/support">Support</a>-->
+<!--                </li>-->
+<!--                {% endif %}-->
+<!--            </ul>-->
+<!--        </div>-->
+<!--    </nav>-->
 
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <a href="/orders">Orders</a>
-        <a href="/customers">Customers</a>
-        <a href="/companies">Companies</a>
-        <a href="/reports">Reports</a>
-        <a href="/admin">Admin</a>
-    </div>
+<!--    &lt;!&ndash; Sidebar &ndash;&gt;-->
+<!--    <div class="sidebar" id="sidebar">-->
+<!--        <a href="/orders">Orders</a>-->
+<!--        <a href="/customers">Customers</a>-->
+<!--        <a href="/companies">Companies</a>-->
+<!--        <a href="/reports">Reports</a>-->
+<!--        <a href="/admin">Admin</a>-->
+<!--    </div>-->
 
-    <!-- Main Content -->
+<!--    &lt;!&ndash; Main Content &ndash;&gt;-->
 
 
-    <script>
-        function toggleSidebar() {
-            var sidebar = document.getElementById("sidebar");
-            var mainContent = document.getElementById("mainContent");
-            if (sidebar.style.left === "-200px") {
-                sidebar.style.left = "0";
-                mainContent.classList.add("shift-right");
-            } else {
-                sidebar.style.left = "-200px";
-                mainContent.classList.remove("shift-right");
-            }
-        }
-    </script>
-</body>
-</html>
+<!--    <script>-->
+<!--        function toggleSidebar() {-->
+<!--            var sidebar = document.getElementById("sidebar");-->
+<!--            var mainContent = document.getElementById("mainContent");-->
+<!--            if (sidebar.style.left === "-200px") {-->
+<!--                sidebar.style.left = "0";-->
+<!--                mainContent.classList.add("shift-right");-->
+<!--            } else {-->
+<!--                sidebar.style.left = "-200px";-->
+<!--                mainContent.classList.remove("shift-right");-->
+<!--            }-->
+<!--        }-->
+<!--    </script>-->
+<!--</body>-->
+<!--</html>-->

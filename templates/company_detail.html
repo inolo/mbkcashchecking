@@ -112,6 +112,9 @@
 <!--            <button id="flagaccount" type="button">Flag Account</button>-->
 <!--            <button id="unflagaccount" type="button">Unflag Account</button>-->
 <!--        </div>-->
+               <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editCompanyModal">
+                Edit Company
+            </button>
     </div>
 
         <h3>Customers</h3>
@@ -128,6 +131,7 @@
                     <th>Is Flagged</th>
                 </tr>
             </thead>
+
             <tbody>
                 {% for item in customer %}
                     <tr>
@@ -173,72 +177,86 @@
                 {% endfor %}
             </tbody>
         </table>
+
     </div>
+
+           <div class="modal fade" id="editCompanyModal" tabindex="-1" role="dialog" aria-labelledby="editCompanyModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCompanyModalLabel">Edit Company</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form fields go here -->
+                <form id="editCompanyForm">
+                    <div class="form-group">
+                        <label for="companyId">ID:</label>
+                        <input type="text" class="form-control" id="companyId" name="companyId" readonly value="{{ company.company_id }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="companyName">Company Name:</label>
+                        <input type="text" class="form-control" id="companyName" name="companyName" value="{{ company.name }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="companyAddress">Address:</label>
+                        <input type="text" class="form-control" id="companyAddress" name="companyAddress" value="{{ company.address }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="companyPhoneNumber">Phone Number:</label>
+                        <input type="text" class="form-control" id="companyPhoneNumber" name="companyPhoneNumber" value="{{ company.phone_number }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="companyCreationDate">Creation Date:</label>
+                        <input type="text" class="form-control" id="companyCreationDate" name="companyCreationDate" readonly value="{{ company.creation_date }}">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="submiteditCompanyForm()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 ///////////////////////////////////////////////////////////////////////////
 
 {% block js %}
- let saveNotes = document.getElementById('saveNotes');
+           function submiteditCompanyForm() {
+        // Prevent the default form submission
+        event.preventDefault();
+        var modal_order = document.getElementById("editCompanyModal");
+        // Gather your form data
+        var formData = {
+            'companyId': $('#companyId').val(),
+            'companyName': $('#companyName').val(),
+            'companyAddress': $('#companyAddress').val(),
+            'companyPhoneNumber': $('#companyPhoneNumber').val(),
+            'companyCreationDate': $('#companyCreationDate').val() // This is read-only
+        };
 
-        saveNotes.addEventListener('click', function () {
-            var notes = document.getElementById('customerNotes').value;
-            var customerId = document.getElementById('cust_id').innerText;
-        fetch('/save_notes', {
-                method: 'POST',
-                 body: JSON.stringify({ customerId: customerId, notes: notes }),
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Image uploaded successfully.');
-                    window.location.reload();
-                } else {
-                    console.error('Image upload failed.');
-                }
-
-
+        // Send the form data using AJAX
+        $.ajax({
+            type: 'POST',
+            url: '/edit/company/', // Replace with the URL of your Flask route
+            data: JSON.stringify(formData),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(response) {
+                // Handle success (e.g., close the modal, show a success message, etc.)
+                //$('#editCompanyModal').modal('hide');
+                // You might want to reload the page or refresh parts of it
+                alert('Company updated successfully');
+                               window.location.reload();
+            },
+            error: function(error) {
+                // Handle errors
+                console.log(error);
+                alert('An error occurred');
+            }
         });
-     });
-        let flagaccount = document.getElementById('flagaccount');
-
-        flagaccount.addEventListener('click', function () {
-        console.log('I am here');
-         var pValue = document.getElementById('cust_id').innerText;
-         console.log(pValue);
-        fetch('/flag_account', {
-                method: 'POST',
-                body: JSON.stringify({ pTagValue: pValue }),
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Image uploaded successfully.');
-                    window.location.reload();
-                } else {
-                    console.error('Image upload failed.');
-                }
-
-
-        });
-     });
-
-      let unflagaccount = document.getElementById('unflagaccount');
-
-        unflagaccount.addEventListener('click', function () {
-         var pValue = document.getElementById('cust_id').innerText;
-         console.log(pValue);
-        fetch('/unflag_account', {
-                method: 'POST',
-                body: JSON.stringify({ pTagValue: pValue }),
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Image uploaded successfully.');
-                    window.location.reload();
-                } else {
-                    console.error('Image upload failed.');
-                }
-
-
-        });
-     });
+    }
 {% endblock %}

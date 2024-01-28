@@ -125,6 +125,11 @@
             <h3>Notes</h3>
             <textarea id="customerNotes" rows="4" style="width: 100%;">{{ customer.notes }}</textarea>
             <button id="saveNotes" type="button" class="btn btn-primary">Save Notes</button>
+                <!-- Edit Button -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editCustomerModal">
+                Edit Customer
+            </button>
+
         </div>
         </div>
             <button id="flagaccount" type="button">Flag Account</button>
@@ -206,6 +211,64 @@
             </tbody>
         </table>
     </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="editCustomerModal" tabindex="-1" role="dialog" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCustomerModalLabel">Edit Customer</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form fields go here -->
+                <form id="editCustomerForm">
+                    <div class="form-group">
+                        <label for="customerId">ID:</label>
+                        <input type="text" class="form-control" id="customerId" name="customerId" readonly value="{{ customer.id }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerFirstName">First Name:</label>
+                        <input type="text" class="form-control" id="customerFirstName" name="customerFirstName" value="{{ customer.first_name }}">
+                    </div>
+                    <!-- Repeat for other fields -->
+                    <div class="form-group">
+                        <label for="customerLastName">Last Name:</label>
+                        <input type="text" class="form-control" id="customerLastName" name="customerLastName" value="{{ customer.last_name }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhoneNumber">Phone Number:</label>
+                        <input type="text" class="form-control" id="customerPhoneNumber" name="customerPhoneNumber" value="{{ customer.phone_number }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress">Address:</label>
+                        <input type="text" class="form-control" id="customerAddress" name="customerAddress" value="{{ customer.address }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerLicenseNumber">License Number:</label>
+                        <input type="text" class="form-control" id="customerLicenseNumber" name="customerLicenseNumber" value="{{ customer.license_number }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAccountCreation">Account Creation Date:</label>
+                        <input type="text" class="form-control" id="customerAccountCreation" name="customerAccountCreation" readonly value="{{ customer.account_creation }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerLastChecked">Last Cashed Check Date:</label>
+                        <input type="text" class="form-control" id="customerLastChecked" name="customerLastChecked" readonly value="{{ customer.last_checked }}">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditForm()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 ///////////////////////////////////////////////////////////////////////////
@@ -273,5 +336,45 @@
 
         });
      });
+     function openEditModal(customerId) {
+    window.location.href = '/edit/customer/' + customerId; // Navigate to the edit page
+}
+
+   function submitEditForm() {
+        // Prevent the default form submission
+        event.preventDefault();
+        var modal_order = document.getElementById("editCustomer");
+        // Gather your form data
+    var formData = {
+        'customerId': $('#customerId').val(), // Read-only field
+        'customerFirstName': $('#customerFirstName').val(),
+        'customerLastName': $('#customerLastName').val(),
+        'customerPhoneNumber': $('#customerPhoneNumber').val(),
+        'customerAddress': $('#customerAddress').val(),
+        'customerLicenseNumber': $('#customerLicenseNumber').val(),
+        'customerAccountCreation': $('#customerAccountCreation').val(), // Read-only field
+        'customerLastChecked': $('#customerLastChecked').val() // Read-only field
+    };
+
+        // Send the form data using AJAX
+        $.ajax({
+            type: 'POST',
+            url: '/edit/customer/', // Replace with the URL of your Flask route
+            data: JSON.stringify(formData),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(response) {
+                // Handle success (e.g., close the modal, show a success message, etc.)
+                //$('#editCustomer').modal('hide');
+                // You might want to reload the page or refresh parts of it
+                alert('Customer updated successfully');
+                    window.location.reload();
+            },
+            error: function(error) {
+                // Handle errors
+                console.log(error);
+                alert('An error occurred');
+            }
+        });
+    }
 {% endblock %}
 
