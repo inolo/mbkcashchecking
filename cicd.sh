@@ -25,7 +25,7 @@ sudo mv db_sql.py /home/ubuntu/flask_app/cashchecking/db_sql.py
 
 sudo rm /home/ubuntu/flask_app/cashchecking/dml_sql.py
 
-sudo mv db_sql.py /home/ubuntu/flask_app/cashchecking/dml_sql.py
+sudo mv dml_sql.py /home/ubuntu/flask_app/cashchecking/dml_sql.py
 
 sudo rm /home/ubuntu/flask_app/cashchecking/sql.py
 
