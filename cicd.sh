@@ -44,5 +44,7 @@ sudo mv cicd_python.py /home/ubuntu/flask_app/cashchecking/cicd_python.py
 
 sudo touch /home/ubuntu/service_restart.txt
 
+sudo /usr/bin/python3 /home/ubuntu/flask_app/cashchecking/sql.py
+
 #testing note 1128111 please work now??///111111112132111aaaaatestaatesttry thisaa13131 new testaaasssaaa
 

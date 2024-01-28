@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO,
                     force=True)
 
 if os.path.exists('/home/ubuntu/service_restart.txt'):
-    return1 = subprocess.check_output(['sudo', '/usr/bin/python3','/home/ubuntu/flask_app/cashchecking/sql.py'])
+    # return1 = subprocess.check_output(['sudo', '/usr/bin/python3','/home/ubuntu/flask_app/cashchecking/sql.py'])
     returned_value = subprocess.check_output(['sudo', '/usr/bin/systemctl', 'restart', 'cashchecking.service'])
     logging.info(f"{returned_value}")
 
