@@ -386,6 +386,7 @@
             <div class="modal-header">
                 <h5 class="modal-title">Select Company</h5>
                 <button type="button" class="close" onclick="closeCompanyModal()">&times;</button>
+<!--    <button type="button" data-toggle="modal" data-target="#companySearchModal">Open Modal</button>-->
             </div>
             <div class="modal-body">
                 <ul id="companyList" class="list-group">
@@ -535,6 +536,7 @@ function renderCustomerPage(customers) {
             customerList.appendChild(p);
 
         }
+
     })};
 
 <!--    customers.forEach(function(customer) {-->
@@ -941,6 +943,23 @@ let saveNotes = document.getElementById('saveNotes');
         function enableSubmitOrderButton() {
     document.getElementById('submitOrderButton').disabled = false;
 }
+
+$('body').click(function (event) {
+   console.log("body click");
+            var resultsDiv = document.getElementById('autocompleteResults');
+    resultsDiv.innerHTML = ''; // Clear previous results
+        $('#companySearchModal').hide();
+
+});
+<!--$('body').click(function (event) {-->
+<!--   // Check if the clicked element is not the trigger button and not inside the modal-->
+<!--   if(!$(event.target).closest('#openCompanyModal').length && !$(event.target).is('#openCompanyModal')) {-->
+<!--     // Check if the click is outside the modal-->
+<!--     if (!$(event.target).closest('#companySearchModal').length && $('#companySearchModal').is(':visible')) {-->
+<!--         $('#companySearchModal').hide(); // Hide the modal-->
+<!--     }-->
+<!--   }-->
+<!--});-->
 {% endblock %}
 
 <!--<!DOCTYPE html>-->
