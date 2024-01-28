@@ -108,4 +108,6 @@ for command in commands:
     except Exception as e:
         continue
 
+conn.close()
+
 # insert into employees ( first_name, last_name, password, username, permission) values ( 'Kevin', 'Nguyen', 'Ilovesushi1!', 'kevin93nguyen', 'admin')
