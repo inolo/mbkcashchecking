@@ -142,6 +142,7 @@ def save_image(request, url):
     try:
         image_data_url = request.form['imageDataUrl']
         uuid = request.form['uuid']
+        print(uuid)
 
         with open(f'./static/images/{url}/{uuid}.png', 'wb') as file:
             file.write(base64.b64decode(image_data_url.split(',')[1]))

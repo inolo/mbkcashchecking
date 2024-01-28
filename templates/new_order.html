@@ -15,7 +15,7 @@
         /* CSS styles for the captured image element */
         #capturedImage {
             max-width: 100%; /* Ensure the image doesn't exceed its container's width */
-            margin-right: 20px; /* Add some spacing between the video and image */
+            margin-right: 40px; /* Add some spacing between the video and image */
         }
 
         /* CSS styles for the "Capture" button */
@@ -96,14 +96,27 @@
 .customer-images {
     display: flex;
     flex-direction: row;
-    gap: 20px; /* Space between the two images */
+    gap: 0; /* No space between the two images */
+    justify-content: left; /* Center the images horizontally */
+    align-items: center; /* Align the images vertically */
 }
 
+
+.customer-image, .customer-license {
+    flex: none; /* Remove flex-grow property */
+    width: 640px; /* Fixed width for these divs */
+    padding: 0; /* Ensure no padding */
+    margin: 0; /* Ensure no margin */
+    display: flex; /* Use flex layout */
+    justify-content: left; /* Center content horizontally */
+    align-items: left; /* Center content vertically */
+}
 .customer-image img, .customer-license img {
     width: 640px; /* Set the width to 640px */
     height: 480px; /* Set the height to 480px */
     object-fit: cover; /* This will ensure the aspect ratio is maintained */
-    border-radius: 8px;
+    border-radius: 0px;
+
 }
 
 .customer-details {
@@ -129,6 +142,41 @@
 .autocomplete-results div:hover {
     background-color: #f2f2f2;
 }
+/* CSS styles for the video and image container */
+.video-image-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    /* Ensure there's enough width to fit the buttons */
+    min-width: 300px; /* Adjust this value as needed based on your button text length */
+}
+
+/* CSS styles for the buttons */
+.video-image-container button {
+    position: absolute;
+    right: 0;
+    z-index: 1; /* Ensure the buttons are above other content */
+    width: 20%; /* Make all buttons the same width */
+    margin-top: 10px; /* Add some space between buttons */
+}
+
+#captureButton {
+    top: 0;
+}
+
+#captureCustomerButton {
+    top: 50px; /* Adjust this value based on the size of the buttons */
+}
+
+#captureLicenseButton {
+    top: 100px; /* Adjust this value based on the size of the buttons */
+}
+
+#saveCustomerImages {
+    top: 150px; /* Adjust this value based on the size of the buttons */
+}
+
+
 {% endblock %}
 
 //////////////////////////////////////////////////////////////////////////
@@ -203,12 +251,23 @@
                 <label for="uuid"></label>
                 <input type="hidden" class="form-control" id="uuid" name="uuid"  value={{uuid}}>
             </div>
+             <div class="form-group">
+                <label for="customer_uuid"></label>
+                <input type="hidden" class="form-control" id="customer_uuid" name="customer_uuid"  value="filler">
+            </div>
 
              <div class="form-group">
                 <label for="base64"></label>
                 <input type="hidden" class="form-control" id="base64" name="base64"  value="filler">
             </div>
-
+             <div class="form-group">
+                <label for="customer_base64"></label>
+                <input type="hidden" class="form-control" id="customer_base64" name="customer_base64"  value="filler">
+            </div>
+            <div class="form-group">
+                <label for="license_base64"></label>
+                <input type="hidden" class="form-control" id="license_base64" name="license_base64"  value="filler">
+            </div>
             <!-- Submit button -->
             <button type="submit" class="btn btn-primary">Submit Order</button>
 <!--             <a href="/new_customer" class="btn btn-primary">Add Customer</a>-->
@@ -216,12 +275,16 @@
 <!--            <video id="webcam" autoplay></video>-->
 <!--            <button id="captureButton" type="button">Capture Check Copy</button>-->
 <!--            <canvas id="canvas" style="display: none;"></canvas>-->
-<!--            <img id="capturedImage" src="" alt="Captured Image">-->
             <div class="video-image-container">
                 <video id="webcam" autoplay></video>
                 <img id="capturedImage" src="./static/images/white.png" alt="Captured Image">
-                <button id="captureButton" type="button">Capture Check Copy</button>
                 <canvas id="canvas" style="display: none;"></canvas>
+
+                <!-- Capture Buttons -->
+                <button id="captureButton" type="button">Capture Check Copy</button>
+                <button id="captureCustomerButton" type="button">Update Customer Photo</button>
+                <button id="captureLicenseButton" type="button">Update License Copy</button>
+                <button id="saveCustomerImages" type="button">Save New Customer Images</button>
             </div>
         </form>
         <div id="data-container" data-custom-data="{{uuid}}"></div>
@@ -235,7 +298,6 @@
                 <img id="cust_license" src="./static/images/white.png" alt="Customer License">
             </div>
         </div>
-
         <div class="customer-details">
         <h2>Customer Details</h2>
         <!-- ... [customer details] ... -->
@@ -533,6 +595,8 @@ function selectCustomer(customerName) {
         document.getElementById('cust_img').src = './static/images/customer_photo/' + data.uuid +'.png';
         document.getElementById('cust_license').src = './static/images/license_copy/' + data.uuid +'.png';
         document.getElementById('customerNotes').value = data.notes;
+        document.getElementById('customer_uuid').value = data.uuid;
+        console.log(data.uuid);
     })
     .catch(error => {
         console.error('Error:', error);
@@ -730,6 +794,149 @@ let saveNotes = document.getElementById('saveNotes');
 
         });
      });
+
+               captureCustomerButton.addEventListener('click', function () {
+            // Draw the current frame from the webcam onto the canvas
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+            // Convert the captured frame to a data URL (base64)
+            let imageDataURL = canvas.toDataURL('image/png');
+            updateCapturedImage_cust(imageDataURL)
+
+            // Get the customer ID from the input field
+
+<!--            let customerName = document.getElementById('customerName').value;-->
+
+            // Create a FormData object and append the customer ID and image data
+            let formData = new FormData();
+            formData.append('imageDataUrl', imageDataURL);
+            updateCapturedImage_cust(imageDataURL);
+            // Send the form data to Flask using an AJAX POST request
+<!--            fetch('/upload_image', {-->
+<!--                method: 'POST',-->
+<!--                body: formData,-->
+<!--            })-->
+<!--            .then(response => {-->
+<!--                if (response.ok) {-->
+<!--                    console.log('Image uploaded successfully.');-->
+<!--                } else {-->
+<!--                    console.error('Image upload failed.');-->
+<!--                }-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error('Error:', error);-->
+<!--            });-->
+           });
+
+            captureLicenseButton.addEventListener('click', function () {
+            // Draw the current frame from the webcam onto the canvas
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+            // Convert the captured frame to a data URL (base64)
+            let imageDataURL = canvas.toDataURL('image/png');
+<!--             updateCapturedImage_license(imageDataURL);-->
+            // Get the customer ID from the input field
+
+<!--            let customerName = document.getElementById('customerName').value;-->
+
+<!--            // Create a FormData object and append the customer ID and image data-->
+<!--            let formData = new FormData();-->
+<!--            formData.append('imageDataUrl', imageDataURL);-->
+
+
+            updateCapturedImage_license(imageDataURL);
+<!--            // Send the form data to Flask using an AJAX POST request-->
+<!--            fetch('/upload_license_image', {-->
+<!--                method: 'POST',-->
+<!--                body: formData,-->
+<!--            })-->
+<!--            .then(response => {-->
+<!--                if (response.ok) {-->
+<!--                    console.log('Image uploaded successfully.');-->
+<!--                } else {-->
+<!--                    console.error('Image upload failed.');-->
+<!--                }-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error('Error:', error);-->
+<!--            });-->
+        });
+            function updateCapturedImage_cust(imageDataURL) {
+        let capturedImageElement = document.getElementById('capturedImage');
+        capturedImageElement.src = imageDataURL;
+        let form_data = document.getElementById('customer_base64');
+        form_data.value = imageDataURL;
+        };
+        function updateCapturedImage_license(imageDataURL) {
+            let capturedImageElement = document.getElementById('capturedImage');
+            capturedImageElement.src = imageDataURL;
+            let form_data = document.getElementById('license_base64');
+            form_data.value = imageDataURL;
+        }
+         saveCustomerImages.addEventListener('click', function () {
+
+            let customer_id = document.getElementById('customerSearchField');
+            let customer_number = Number(customer_id.value);
+            console.log(customer_number);
+            if (customer_number > 0 ){
+<!--                console.log(customer_id.value);-->
+                let license_image = document.getElementById('license_base64').value;
+<!--                console.log(license_image);-->
+                let customer_image = document.getElementById('customer_base64').value;
+<!--                console.log(customer_image);-->
+                let customer_uuid = document.getElementById('customer_uuid').value;
+<!--                console.log(customer_uuid);-->
+                let formData = new FormData();
+                formData.append('imageDataUrl', customer_image);
+                formData.append('uuid', customer_uuid);
+                console.log(license_image.length);
+                if ( customer_image.length > 100){
+                fetch('/upload_image', {
+                        method: 'POST',
+                        body: formData,
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log('Image uploaded successfully.');
+
+                        } else {
+                            console.error('Image upload failed.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    })};
+                if ( license_image.length > 100 ){
+                let formData2 = new FormData();
+                formData2.append('imageDataUrl', license_image);
+                formData2.append('uuid', customer_uuid);
+                fetch('/upload_license_image', {
+                        method: 'POST',
+                        body: formData2,
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log('Image uploaded successfully.');
+
+                        } else {
+                            console.error('Image upload failed.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    })};
+            alert('Customer Photo Updated Sucessfully!');
+            }
+            else {
+                console.log('No customer chosen');
+                alert('You must choose a customer!');
+
+            }
+        });
 {% endblock %}
 
 <!--<!DOCTYPE html>-->
