@@ -1,3 +1,43 @@
+def add_logging(cursor,employee_id, process, time, data):
+    if process == 'order':
+        order_id = data.get('orderNumber')
+        cursor.execute('select * from orders where order_id = ?', (order_id,))
+        row = cursor.fetchone()
+        print(row)
+        if row is not None:
+            # Convert the row to a string
+            row_str = ', '.join(map(str, row))
+        else:
+            row_str = ''
+
+    if process == 'customer':
+        customerId = data.get('customerId')
+        cursor.execute('select * from customers where customer_id = ?', (customerId,))
+        row = cursor.fetchone()
+        if row is not None:
+            # Convert the row to a string
+            row_str = ', '.join(map(str, row))
+        else:
+            row_str = ''
+    if process == 'company':
+        companyId = data.get('companyId')
+        cursor.execute('select * from companies where company_id = ?', (companyId,))
+        row = cursor.fetchone()
+        if row is not None:
+            # Convert the row to a string
+            row_str = ', '.join(map(str, row))
+        else:
+            row_str = ''
+
+    sql = '''
+    INSERT INTO TRANS_LOGGING
+    (employee_id, process, old_data, new_data, date)
+    values 
+    ( ?,?,?,?,? );
+    
+    '''
+    cursor.execute(sql, (employee_id, process, row_str, str(data), time))
+
 
 def update_order(cursor, data):
     order_number = data.get('orderNumber')

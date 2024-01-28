@@ -18,7 +18,7 @@ from threading import Thread
 import logging
 import subprocess
 import ast
-from dml_sql import add_order, add_customer, add_user, edit_customer, add_company, update_order, update_customer, update_company
+from dml_sql import add_order, add_customer, add_user, edit_customer, add_company, update_order, update_customer, update_company, add_logging
 from db_sql import get_db_customers, get_order_list, get_customer_list, get_order_detail, get_customer_detail, \
     get_order_list_by_customer, get_user, get_report_data, get_db_companies, get_db_companies_detail, get_company_list,get_company_detail
 
@@ -67,6 +67,12 @@ def is_admin():
         return True
     else:
         return False
+
+
+def trans_logging(cursor, process, data):
+    employee_id = current_user.id
+    time_now = datetime.datetime.now().isoformat()
+    add_logging(cursor, employee_id, process, time_now, data )
 
 
 
@@ -324,6 +330,7 @@ def company_detail(company_id):
 def edit_order():
     conn, cursor = get_sqlite_connection()
     data = request.json
+    trans_logging(cursor, process='order', data=data)
     update_order(cursor, data)
     conn.commit()
     conn.close()
@@ -335,6 +342,7 @@ def edit_customer():
     conn, cursor = get_sqlite_connection()
     data = request.json
     print(data)
+    trans_logging(cursor, process='customer', data=data)
     update_customer(cursor, data)
     conn.commit()
     conn.close()
@@ -345,6 +353,7 @@ def edit_customer():
 def edit_company():
     conn, cursor = get_sqlite_connection()
     data = request.json
+    trans_logging(cursor, process='company',data=data)
     update_company(cursor, data)
     conn.commit()
     conn.close()

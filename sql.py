@@ -76,6 +76,19 @@ CREATE TABLE COMPANIES
 
 '''
 
+
+create_logging_table = '''
+CREATE TABLE TRANS_LOGGING 
+(log_id  INTEGER PRIMARY KEY AUTOINCREMENT,
+employee_id INTEGER,
+process TEXT,
+action TEXT,
+new_data TEXT,
+old_data TEXT,
+date TIMESTAMP);
+
+'''
+cur.execute(create_logging_table)
 cur.execute(create_order_table)
 cur.execute(create_customers_table)
 cur.execute(create_employees_table)
