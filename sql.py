@@ -88,17 +88,24 @@ old_data TEXT,
 date TIMESTAMP);
 
 '''
-cur.execute(create_logging_table)
-cur.execute(create_order_table)
-cur.execute(create_customers_table)
-cur.execute(create_employees_table)
-cur.execute(create_companies_table)
-cur.execute(
-    """insert into employees ( first_name, last_name, password, username, permission) values ( 'Kevin', 'Nguyen', 'Ilovesushi1!', 'kevin93nguyen', 'admin')""")
-cur.execute(
-    """insert into employees ( first_name, last_name, password, username, permission) values ( 'ivy', 'wong', 'Ilovesushi1!', 'ivywong93', 'admin')""")
-cur.execute(
-    """insert into employees ( first_name, last_name, password, username, permission) values ( 'hazel', 'nguyen', 'Ilovesushi1!', 'hazel22', 'manager')""")
-conn.commit()
+commands = [create_logging_table,create_companies_table,create_order_table,create_customers_table,create_employees_table]
+
+for command in commands:
+    try:
+        cur.execute(command)
+        # cur.execute(create_logging_table)
+        # cur.execute(create_order_table)
+        # cur.execute(create_customers_table)
+        # cur.execute(create_employees_table)
+        # cur.execute(create_companies_table)
+        # cur.execute(
+        #     """insert into employees ( first_name, last_name, password, username, permission) values ( 'Kevin', 'Nguyen', 'Ilovesushi1!', 'kevin93nguyen', 'admin')""")
+        # cur.execute(
+        #     """insert into employees ( first_name, last_name, password, username, permission) values ( 'ivy', 'wong', 'Ilovesushi1!', 'ivywong93', 'admin')""")
+        # cur.execute(
+        #     """insert into employees ( first_name, last_name, password, username, permission) values ( 'hazel', 'nguyen', 'Ilovesushi1!', 'hazel22', 'manager')""")
+        conn.commit()
+    except Exception as e:
+        continue
 
 # insert into employees ( first_name, last_name, password, username, permission) values ( 'Kevin', 'Nguyen', 'Ilovesushi1!', 'kevin93nguyen', 'admin')
