@@ -269,7 +269,7 @@
                 <input type="hidden" class="form-control" id="license_base64" name="license_base64"  value="filler">
             </div>
             <!-- Submit button -->
-            <button type="submit" class="btn btn-primary">Submit Order</button>
+            <button type="submit" id="submitOrderButton" class="btn btn-primary" disabled>Submit Order</button>
 <!--             <a href="/new_customer" class="btn btn-primary">Add Customer</a>-->
             <br>
 <!--            <video id="webcam" autoplay></video>-->
@@ -449,7 +449,7 @@
             let formData = new FormData();
             formData.append('uuid',customData);
             formData.append('imageDataUrl', imageDataURL);
-
+            enableSubmitOrderButton();
             updateCapturedImage(imageDataURL);
             // Send the form data to Flask using an AJAX POST request
             fetch('/upload_check_copy', {
@@ -937,6 +937,10 @@ let saveNotes = document.getElementById('saveNotes');
 
             }
         });
+
+        function enableSubmitOrderButton() {
+    document.getElementById('submitOrderButton').disabled = false;
+}
 {% endblock %}
 
 <!--<!DOCTYPE html>-->
