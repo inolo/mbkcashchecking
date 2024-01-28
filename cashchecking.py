@@ -565,7 +565,7 @@ def order_submit():
     time_now = datetime.datetime.now().isoformat()
     company_id = add_company(cursor, data, employee_id, time_now)
     add_order(cursor, data, employee_id, time_now, company_id)
-    edit_customer(cursor, data, time_now)
+    # edit_customer(cursor, data, time_now)
     conn.commit()
     conn.close()
     return render_template('home.html', submit_order=True)
